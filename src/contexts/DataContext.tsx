@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
+import { useToast } from '@/hooks/use-toast';
 
 interface Property {
   id: number;
@@ -9,24 +10,50 @@ interface Property {
   bedrooms: number;
   bathrooms: number;
   area: number;
-  type: string;
-  operation: string;
+  status?: string;
+  image?: string;
   images: string[];
+  operation: string;
+  type: string;
+  rentalType?: string;
+  description?: string;
+  surface?: number;
+  coveredSurface?: number;
+  rooms?: number;
+  baths?: number;
+  garage?: number;
   featured?: boolean;
+}
+
+interface Publisher {
+  name: string;
+  avatar: string;
+  reputation: number;
+  memberSince: string;
+  profileUrl: string;
+}
+
+interface Coordinates {
+  lat: number;
+  lng: number;
 }
 
 interface InvestmentProject {
   id: number;
   name: string;
   slug: string;
-  location: string;
   status: string;
   deliveryDate: string;
+  location: string;
+  unitTypes: string[];
   minInvestment: number;
   annualReturn: number;
   capitalGain: number;
-  images: string[];
+  modality: string;
   description: string;
+  images: string[];
+  coordinates?: Coordinates;
+  publisher?: Publisher;
 }
 
 interface Review {
@@ -41,25 +68,27 @@ interface Service {
   id: string;
   title: string;
   description: string;
-  priceRange: string;
+  images: string[];
+  category: string;
   deliveryTime: string;
+  priceRange: string;
   rating: number;
   reviews: Review[];
-  images: string[];
 }
 
 interface Professional {
   id: string;
   name: string;
-  specialty: string;
-  category: string;
-  location: string;
   avatar: string;
+  specialty: string;
+  categorySlug: string;
+  location: string;
   reputation: {
     rating: number;
+    level: string;
   };
-  services: Service[];
   profileReviews: Review[];
+  services: Service[];
 }
 
 interface DataContextType {
@@ -73,142 +102,272 @@ interface DataContextType {
   getProfessionalById: (id: string) => Professional | undefined;
   getProfessionalsByCategory: (categorySlug: string) => Professional[];
   addProperty: (property: any) => void;
+  updateProperty: (property: Property) => void;
   toggleFavorite: (property: Property) => void;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
-const mockProperties: Property[] = [
-  {
-    id: 1,
-    title: "Departamento 3 ambientes en Palermo con balcón",
-    slug: "departamento-3-ambientes-palermo",
-    price: "USD 280.000",
-    location: "Palermo, CABA",
-    bedrooms: 2,
-    bathrooms: 2,
-    area: 85,
-    type: "Departamento",
-    operation: "Venta",
-    images: ["https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800"],
-    featured: true,
+const initialProperties: Property[] = [
+  { id: 1, title: 'Departamento en Palermo', slug: 'departamento-palermo', price: 'USD 250.000', location: 'Palermo, CABA', bedrooms: 2, bathrooms: 1, area: 50, status: 'activa', image: 'https://images.unsplash.com/photo-1595872018818-97555653a011?q=80&w=2574&auto=format&fit=crop', images: ['https://images.unsplash.com/photo-1595872018818-97555653a011?q=80&w=2574&auto=format&fit=crop'], operation: 'Venta', type: 'departamento', description: "Luminoso departamento de 2 ambientes en el corazón de Palermo Hollywood. Balcón con vista abierta.", surface: 50, coveredSurface: 45, rooms: 2, baths: 1, garage: 1, featured: true },
+  { id: 2, title: 'Casa en San Isidro', slug: 'casa-san-isidro', price: 'USD 680.000', location: 'San Isidro, GBA Norte', bedrooms: 5, bathrooms: 3, area: 400, status: 'pausada', image: 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?q=80&w=2574&auto=format&fit=crop', images: ['https://images.unsplash.com/photo-1580587771525-78b9dba3b914?q=80&w=2574&auto=format&fit=crop'], operation: 'Venta', type: 'casa', description: "Espectacular casa con jardín y pileta en la mejor zona de San Isidro. Acabados de lujo.", surface: 400, coveredSurface: 250, rooms: 5, baths: 3, garage: 2, featured: true },
+  { id: 3, title: 'Oficina en Microcentro', slug: 'oficina-microcentro', price: 'USD 180.000', location: 'Microcentro, CABA', bedrooms: 3, bathrooms: 2, area: 80, status: 'finalizada', image: 'https://images.unsplash.com/photo-1517048676732-d65bc937f952?q=80&w=2670&auto=format&fit=crop', images: ['https://images.unsplash.com/photo-1517048676732-d65bc937f952?q=80&w=2670&auto=format&fit=crop'], operation: 'Venta', type: 'oficina', description: "Oficina moderna y equipada en edificio corporativo. Ubicación estratégica.", surface: 80, coveredSurface: 80, rooms: 3, baths: 2, garage: 0, featured: true },
+  { id: 4, title: 'Loft en Puerto Madero', slug: 'loft-puerto-madero', price: 'ARS 350.000/mes', location: 'Puerto Madero, CABA', bedrooms: 1, bathrooms: 1, area: 65, status: 'activa', image: 'https://images.unsplash.com/photo-1613553420270-1363a23991b1?q=80&w=2574&auto=format&fit=crop', images: ['https://images.unsplash.com/photo-1613553420270-1363a23991b1?q=80&w=2574&auto=format&fit=crop'], operation: 'Alquiler', type: 'departamento', rentalType: 'tradicional', description: 'Loft con vista al dique.', surface: 65, coveredSurface: 65, rooms: 1, baths: 1, garage: 1 },
+  { id: 5, title: 'Casa quinta en Tigre', slug: 'casa-quinta-tigre', price: 'USD 320.000', location: 'Tigre, GBA Norte', bedrooms: 4, bathrooms: 3, area: 250, status: 'activa', image: 'https://images.unsplash.com/photo-1588880331179-62bde39a3136?q=80&w=2670&auto=format&fit=crop', images: ['https://images.unsplash.com/photo-1588880331179-62bde39a3136?q=80&w=2670&auto=format&fit=crop'], operation: 'Venta', type: 'casa', description: 'Casa de fin de semana con pileta y parrilla.', surface: 250, coveredSurface: 180, rooms: 4, baths: 3, garage: 3 },
+  { id: 6, title: 'Estudio en Recoleta', slug: 'estudio-recoleta', price: 'ARS 180.000/mes', location: 'Recoleta, CABA', bedrooms: 1, bathrooms: 1, area: 35, status: 'activa', image: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?q=80&w=2670&auto=format&fit=crop', images: ['https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?q=80&w=2670&auto=format&fit=crop'], operation: 'Alquiler', type: 'departamento', rentalType: 'tradicional', description: 'Monoambiente ideal para estudiantes.', surface: 35, coveredSurface: 35, rooms: 1, baths: 1, garage: 0 },
+  { id: 7, title: 'Depto amoblado en Belgrano', slug: 'depto-amoblado-belgrano', price: 'USD 900/mes', location: 'Belgrano, CABA', bedrooms: 2, bathrooms: 1, area: 60, status: 'activa', image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2670&auto=format&fit=crop', images: ['https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2670&auto=format&fit=crop'], operation: 'Alquiler', type: 'departamento', rentalType: 'temporal', description: 'Departamento totalmente amoblado y equipado para alquileres temporales. Ideal para ejecutivos o turistas.', surface: 60, coveredSurface: 60, rooms: 2, baths: 1, garage: 0 },
+  { id: 8, title: 'Casa de playa en Cariló', slug: 'casa-playa-carilo', price: 'USD 300/noche', location: 'Cariló, Costa Atlántica', bedrooms: 4, bathrooms: 3, area: 220, status: 'activa', image: 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?q=80&w=2670&auto=format&fit=crop', images: ['https://images.unsplash.com/photo-1568605114967-8130f3a36994?q=80&w=2670&auto=format&fit=crop'], operation: 'Alquiler', type: 'casa', rentalType: 'temporal', description: 'Espectacular casa a metros del mar. Ideal para vacaciones en familia.', surface: 220, coveredSurface: 200, rooms: 4, baths: 3, garage: 2 },
+];
+
+const initialInvestmentProjects: InvestmentProject[] = [
+  { 
+    id: 1, 
+    name: 'Torres del Sol', 
+    slug: 'torres-del-sol', 
+    status: 'En pozo', 
+    deliveryDate: '2026-12-01', 
+    location: 'Caballito, CABA', 
+    unitTypes: ['Deptos 1-3 amb.'], 
+    minInvestment: 50000, 
+    annualReturn: 8, 
+    capitalGain: 25, 
+    modality: 'Fideicomiso', 
+    description: 'Un desarrollo único en el corazón de Caballito, pensado para la vida moderna. Unidades de 1, 2 y 3 ambientes con amenities de primer nivel: piscina, SUM, gimnasio y seguridad 24hs. Ideal para inversores que buscan renta y capitalización.', 
+    images: ['https://images.unsplash.com/photo-1580587771525-78b9dba3b914?q=80&w=2574&auto=format&fit=crop', 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2670&auto=format&fit=crop', 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?q=80&w=2670&auto=format&fit=crop'], 
+    coordinates: { lat: -34.6105, lng: -58.4441 },
+    publisher: {
+      name: 'Constructora del Sur S.A.',
+      avatar: 'https://i.pravatar.cc/150?u=constructora-sur',
+      reputation: 5,
+      memberSince: '2021-03-10',
+      profileUrl: '/perfil/constructora-del-sur'
+    }
   },
-  {
-    id: 2,
-    title: "Casa en Nordelta con pileta y jardín",
-    slug: "casa-nordelta-pileta-jardin",
-    price: "USD 450.000",
-    location: "Nordelta, Buenos Aires",
-    bedrooms: 4,
-    bathrooms: 3,
-    area: 250,
-    type: "Casa",
-    operation: "Venta",
-    images: ["https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800"],
-    featured: true,
+  { 
+    id: 2, 
+    name: 'Madero Office IV', 
+    slug: 'madero-office-iv', 
+    status: 'En construcción', 
+    deliveryDate: '2025-06-01', 
+    location: 'Puerto Madero, CABA', 
+    unitTypes: ['Oficinas AAA'], 
+    minInvestment: 120000, 
+    annualReturn: 10, 
+    capitalGain: 20, 
+    modality: 'Renta garantizada', 
+    description: 'Oficinas premium en la zona de mayor crecimiento de Buenos Aires. Plantas libres, tecnología de punta y vistas panorámicas al río. Una inversión segura con renta garantizada por contrato.', 
+    images: ['https://images.unsplash.com/photo-1517048676732-d65bc937f952?q=80&w=2670&auto=format&fit=crop', 'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?q=80&w=2832&auto=format&fit=crop', 'https://images.unsplash.com/photo-1541746972996-4e0b0f43e02a?q=80&w=2670&auto=format&fit=crop'], 
+    coordinates: { lat: -34.6173, lng: -58.3621 },
+    publisher: {
+      name: 'Urbanica Desarrollos',
+      avatar: 'https://i.pravatar.cc/150?u=urbanica',
+      reputation: 4,
+      memberSince: '2020-11-25',
+      profileUrl: '/perfil/urbanica-desarrollos'
+    }
   },
-  {
-    id: 3,
-    title: "Departamento 2 ambientes en Belgrano",
-    slug: "departamento-2-ambientes-belgrano",
-    price: "ARS 350.000/mes",
-    location: "Belgrano, CABA",
-    bedrooms: 1,
-    bathrooms: 1,
-    area: 55,
-    type: "Departamento",
-    operation: "Alquiler",
-    images: ["https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800"],
+  { 
+    id: 3, 
+    name: 'Country "La Arboleda"', 
+    slug: 'country-la-arboleda', 
+    status: 'Entrega inmediata', 
+    deliveryDate: '2024-01-01', 
+    location: 'Pilar, GBA Norte', 
+    unitTypes: ['Lotes', 'Casas'], 
+    minInvestment: 80000, 
+    annualReturn: 5, 
+    capitalGain: 30, 
+    modality: 'Reventa', 
+    description: 'Viva en un entorno natural con todas las comodidades. Lotes desde 800m² y casas de diseño. Club house, canchas de tenis, golf y acceso directo desde Panamericana. Oportunidad única de revalorización.', 
+    images: ['https://images.unsplash.com/photo-1570129477492-45c003edd2be?q=80&w=2670&auto=format&fit=crop', 'https://images.unsplash.com/photo-1613490493576-7fde63acd811?q=80&w=2670&auto=format&fit=crop', 'https://images.unsplash.com/photo-1588880331179-62bde39a3136?q=80&w=2670&auto=format&fit=crop'], 
+    coordinates: { lat: -34.4449, lng: -58.9163 },
+    publisher: {
+      name: 'Grupo Inversor Pilar',
+      avatar: 'https://i.pravatar.cc/150?u=grupo-pilar',
+      reputation: 3,
+      memberSince: '2023-01-05',
+      profileUrl: '/perfil/grupo-inversor-pilar'
+    }
   },
 ];
 
-const mockInvestmentProjects: InvestmentProject[] = [
+const initialProfessionals: Professional[] = [
   {
-    id: 1,
-    name: "Torres del Puerto",
-    slug: "torres-del-puerto",
-    location: "Puerto Madero, CABA",
-    status: "En construcción",
-    deliveryDate: "2025-12-01",
-    minInvestment: 100000,
-    annualReturn: 8,
-    capitalGain: 25,
-    images: ["https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800"],
-    description: "Proyecto premium en la zona más exclusiva de Buenos Aires.",
-  },
-  {
-    id: 2,
-    name: "Edificio Palermo Soho",
-    slug: "edificio-palermo-soho",
-    location: "Palermo Soho, CABA",
-    status: "En pozo",
-    deliveryDate: "2026-06-01",
-    minInvestment: 75000,
-    annualReturn: 10,
-    capitalGain: 30,
-    images: ["https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800"],
-    description: "Desarrollo moderno en el corazón de Palermo Soho.",
-  },
-];
-
-const mockProfessionals: Professional[] = [
-  {
-    id: 'prof-1',
-    name: 'Arq. María González',
-    specialty: 'Arquitecta & Diseñadora',
-    category: 'arquitectura-proyectos',
-    location: 'Buenos Aires, CABA',
-    avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400',
-    reputation: { rating: 4.8 },
+    id: 'arq-laura-gomez',
+    name: 'Arq. Laura Gómez',
+    avatar: 'https://i.pravatar.cc/150?u=laura-gomez',
+    specialty: 'Diseño Residencial y Sustentable',
+    categorySlug: 'arquitectura-proyectos',
+    location: 'Palermo, CABA',
+    reputation: { rating: 4.8, level: 'Nivel 5 - Excelente' },
+    profileReviews: [
+      { id: 'pr1', author: 'Familia Perez', rating: 5, comment: 'Laura diseñó la casa de nuestros sueños. Súper profesional y atenta a cada detalle.', date: '2024-06-20' },
+      { id: 'pr2', author: 'Juan Carlos', rating: 4, comment: 'Muy buen trabajo, aunque demoró un poco más de lo esperado. El resultado final fue impecable.', date: '2024-05-15' },
+    ],
     services: [
       {
-        id: 'serv-1',
-        title: 'Diseño y Proyecto de Vivienda',
-        description: 'Diseño completo de viviendas unifamiliares, incluyendo planos, renders 3D y documentación técnica para aprobación municipal.',
-        priceRange: '$500.000 - $1.500.000',
-        deliveryTime: '30-45 días',
-        rating: 4.9,
-        images: ['https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=800'],
-        reviews: [
-          {
-            id: 'rev-1',
-            author: 'Carlos Pérez',
-            rating: 5,
-            comment: 'Excelente trabajo, muy profesional y creativa. Superó nuestras expectativas.',
-            date: '2025-01-15'
-          }
-        ]
-      }
-    ],
-    profileReviews: [
-      {
-        id: 'prev-1',
-        author: 'Lucía Fernández',
+        id: 'diseno-planos',
+        title: 'Diseño de Planos Personalizados',
+        description: 'Creación de planos de arquitectura completos para viviendas unifamiliares, desde el anteproyecto hasta los planos municipales.',
+        images: ['https://images.unsplash.com/photo-1542323282-c529104162a1?q=80&w=2670&auto=format&fit=crop'],
+        category: 'Diseño Arquitectónico',
+        deliveryTime: '3-4 semanas',
+        priceRange: 'Desde USD 1.500',
         rating: 5,
-        comment: 'Muy profesional y atenta a todos los detalles. Recomendada 100%.',
-        date: '2025-01-10'
+        reviews: [
+          { id: 'sr1', author: 'Martina S.', rating: 5, comment: 'El plano fue perfecto, captó exactamente lo que queríamos.', date: '2024-07-01' }
+        ]
+      },
+      {
+        id: 'renderizado-3d',
+        title: 'Renderizado 3D y Visualización',
+        description: 'Visualizaciones fotorrealistas de alta calidad para que puedas ver tu proyecto antes de construirlo.',
+        images: ['https://images.unsplash.com/photo-1600585152915-d208bec867a1?q=80&w=2574&auto=format&fit=crop'],
+        category: 'Visualización',
+        deliveryTime: '1 semana',
+        priceRange: 'Desde USD 500',
+        rating: 4.5,
+        reviews: [
+          { id: 'sr2', author: 'Inmobiliaria Norte', rating: 5, comment: 'Los renders nos ayudaron a vender el proyecto en pozo. Increíble calidad.', date: '2024-06-10' },
+          { id: 'sr3', author: 'Carlos F.', rating: 4, comment: 'Buen trabajo, me hubiese gustado una opción de revisión más.', date: '2024-05-22' }
+        ]
       }
     ]
   },
   {
-    id: 'prof-2',
-    name: 'Ing. Roberto Martínez',
-    specialty: 'Ingeniero Civil',
-    category: 'ingenieros',
-    location: 'Córdoba, Argentina',
-    avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400',
-    reputation: { rating: 4.7 },
-    services: [],
-    profileReviews: []
+    id: 'ing-martin-rodriguez',
+    name: 'Ing. Martín Rodriguez',
+    avatar: 'https://i.pravatar.cc/150?u=martin-rodriguez',
+    specialty: 'Cálculo Estructural',
+    categorySlug: 'ingenieros',
+    location: 'Córdoba Capital',
+    reputation: { rating: 5, level: 'Nivel 5 - Excelente' },
+    profileReviews: [
+      { id: 'pr3', author: 'Constructora Lider', rating: 5, comment: 'Siempre confiamos en los cálculos de Martín. Precisión y seguridad garantizadas.', date: '2024-07-05' }
+    ],
+    services: [
+      {
+        id: 'calculo-estructural',
+        title: 'Cálculo de Estructuras de Hormigón',
+        description: 'Análisis y dimensionamiento de estructuras de hormigón armado para edificios y viviendas, cumpliendo con todas las normativas vigentes (CIRSOC).',
+        images: ['https://images.unsplash.com/photo-1512414733475-5ea50d0ac59d?q=80&w=2670&auto=format&fit=crop'],
+        category: 'Ingeniería Civil',
+        deliveryTime: '2-3 semanas',
+        priceRange: 'A consultar',
+        rating: 5,
+        reviews: [
+          { id: 'sr4', author: 'Arq. Gomez', rating: 5, comment: 'Impecable y entregado a tiempo. Un placer trabajar con Martín.', date: '2024-06-28' }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'elec-juan-perez',
+    name: 'Juan Pérez Electricista',
+    avatar: 'https://i.pravatar.cc/150?u=juan-perez',
+    specialty: 'Instalaciones Eléctricas Domiciliarias',
+    categorySlug: 'electricistas',
+    location: 'Rosario, Santa Fe',
+    reputation: { rating: 4.9, level: 'Nivel 5 - Excelente' },
+    profileReviews: [],
+    services: [
+      {
+        id: 'instalacion-completa',
+        title: 'Instalación Eléctrica Completa',
+        description: 'Cableado completo para obras nuevas, tableros, y puesta a tierra.',
+        images: ['https://images.unsplash.com/photo-1487813489525-3885534383d5?q=80&w=2670&auto=format&fit=crop'],
+        category: 'Instalaciones',
+        deliveryTime: 'A convenir',
+        priceRange: 'A consultar',
+        rating: 4.9,
+        reviews: [
+          { id: 'sr5', author: 'Familia Rossi', rating: 5, comment: 'Juan nos hizo toda la instalación de la casa nueva. Un trabajo prolijo y seguro.', date: '2024-07-10' }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'foto-ana-sanchez',
+    name: 'Ana Sánchez Fotografía',
+    avatar: 'https://i.pravatar.cc/150?u=ana-sanchez',
+    specialty: 'Fotografía de Arquitectura e Inmobiliaria',
+    categorySlug: 'fotografia-profesional',
+    location: 'Toda Argentina',
+    reputation: { rating: 5, level: 'Nivel 5 - Excelente' },
+    profileReviews: [],
+    services: [
+      {
+        id: 'sesion-fotos-propiedad',
+        title: 'Sesión de Fotos Profesional para Propiedades',
+        description: 'Paquete de 20 fotografías de alta calidad, editadas profesionalmente para destacar cualquier tipo de propiedad en venta o alquiler.',
+        images: ['https://images.unsplash.com/photo-1560185007-c5ca9d2c014d?q=80&w=2670&auto=format&fit=crop'],
+        category: 'Fotografía',
+        deliveryTime: '48hs',
+        priceRange: 'Desde ARS 30.000',
+        rating: 5,
+        reviews: [
+          { id: 'sr6', author: 'Inmobiliaria Futuro', rating: 5, comment: 'Las fotos de Ana son increíbles, nuestras propiedades se alquilan mucho más rápido ahora.', date: '2024-07-15' }
+        ]
+      }
+    ]
   }
 ];
 
 export const DataProvider = ({ children }: { children: ReactNode }) => {
-  const [properties] = useState<Property[]>(mockProperties);
-  const [investmentProjects] = useState<InvestmentProject[]>(mockInvestmentProjects);
-  const [professionals] = useState<Professional[]>(mockProfessionals);
+  const { toast } = useToast();
+  const [properties, setProperties] = useState<Property[]>([]);
+  const [investmentProjects, setInvestmentProjects] = useState<InvestmentProject[]>([]);
+  const [professionals, setProfessionals] = useState<Professional[]>([]);
   const [favorites, setFavorites] = useState<Property[]>([]);
-  const [loading] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    setProperties(initialProperties);
+    setInvestmentProjects(initialInvestmentProjects);
+    setProfessionals(initialProfessionals);
+
+    try {
+      const storedFavorites = localStorage.getItem('favorites');
+      if (storedFavorites) {
+        setFavorites(JSON.parse(storedFavorites));
+      }
+    } catch (error) {
+      console.error("Failed to parse favorites from localStorage", error);
+      localStorage.removeItem('favorites');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('favorites', JSON.stringify(favorites));
+  }, [favorites]);
+
+  const addProperty = (newProperty: any) => {
+    const propertyWithId = { ...newProperty, id: Date.now() };
+    setProperties(prev => [propertyWithId, ...prev]);
+  };
+
+  const updateProperty = (updatedProperty: Property) => {
+    setProperties(prev =>
+      prev.map(p =>
+        p.id === updatedProperty.id ? { ...p, ...updatedProperty } : p
+      )
+    );
+  };
+
+  const toggleFavorite = (property: Property) => {
+    setFavorites(prev => {
+      const isFavorite = prev.some(fav => fav.id === property.id);
+      if (isFavorite) {
+        toast({ title: "Removido de favoritos" });
+        return prev.filter(fav => fav.id !== property.id);
+      } else {
+        toast({ title: "Agregado a favoritos" });
+        return [...prev, property];
+      }
+    });
+  };
 
   const getPropertyBySlug = (slug: string) => {
     return properties.find(p => p.slug === slug);
@@ -217,47 +376,33 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
   const getInvestmentProjectBySlug = (slug: string) => {
     return investmentProjects.find(p => p.slug === slug);
   };
-
+  
   const getProfessionalById = (id: string) => {
     return professionals.find(p => p.id === id);
   };
 
   const getProfessionalsByCategory = (categorySlug: string) => {
     if (!categorySlug) return professionals;
-    return professionals.filter(p => p.category === categorySlug);
+    return professionals.filter(p => p.categorySlug === categorySlug);
   };
 
-  const addProperty = (property: any) => {
-    console.log('Property added:', property);
-  };
-
-  const toggleFavorite = (property: Property) => {
-    setFavorites(prev => {
-      const exists = prev.some(fav => fav.id === property.id);
-      if (exists) {
-        return prev.filter(fav => fav.id !== property.id);
-      } else {
-        return [...prev, property];
-      }
-    });
+  const value: DataContextType = {
+    properties,
+    investmentProjects,
+    professionals,
+    favorites,
+    loading,
+    getPropertyBySlug,
+    updateProperty,
+    toggleFavorite,
+    addProperty,
+    getInvestmentProjectBySlug,
+    getProfessionalById,
+    getProfessionalsByCategory,
   };
 
   return (
-    <DataContext.Provider
-      value={{
-        properties,
-        investmentProjects,
-        professionals,
-        favorites,
-        loading,
-        getPropertyBySlug,
-        getInvestmentProjectBySlug,
-        getProfessionalById,
-        getProfessionalsByCategory,
-        addProperty,
-        toggleFavorite,
-      }}
-    >
+    <DataContext.Provider value={value}>
       {children}
     </DataContext.Provider>
   );
