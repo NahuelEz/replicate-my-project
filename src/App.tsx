@@ -29,6 +29,7 @@ const ProfessionalProfile = lazy(() => import("./pages/services/ProfessionalProf
 const ServiceDetail = lazy(() => import("./pages/services/ServiceDetail"));
 const Login = lazy(() => import("./pages/Login"));
 const Register = lazy(() => import("./pages/Register"));
+const PropertyDetail = lazy(() => import("./pages/PropertyDetail"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -67,6 +68,7 @@ const App = () => (
                     <Route path="/servicios/:categorySlug" element={<Professionals />} />
                     <Route path="/servicios/profesionales/:professionalId" element={<ProfessionalProfile />} />
                     <Route path="/servicio/:professionalId/:serviceId" element={<ServiceDetail />} />
+                    <Route path="/propiedad/:id" element={<PropertyDetail />} />
                     {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                     <Route path="*" element={<NotFound />} />
                   </Routes>
