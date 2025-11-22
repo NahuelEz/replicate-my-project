@@ -1,14 +1,16 @@
 import React from 'react';
 import { Helmet } from 'react-helmet';
-import { useNavigate } from 'react-router-dom';
 import { useData } from '@/contexts/DataContext';
 import HeroSection from '@/components/home/HeroSection';
 import LookingForSection from '@/components/home/LookingForSection';
 import FeaturedProperties from '@/components/home/FeaturedProperties';
+import LatestProperties from '@/components/home/LatestProperties';
 import WhyChooseUs from '@/components/home/WhyChooseUs';
+import PopularZones from '@/components/home/PopularZones';
 import InvestmentProjectsPreview from '@/components/home/InvestmentProjectsPreview';
-import PublishCTA from '@/components/home/PublishCTA';
 import Testimonials from '@/components/home/Testimonials';
+import PublishCTA from '@/components/home/PublishCTA';
+import { useNavigate } from 'react-router-dom';
 
 const Home = () => {
   const { properties, investmentProjects } = useData();
@@ -19,8 +21,8 @@ const Home = () => {
   return (
     <>
       <Helmet>
-        <title>PropiedadesArgentinas.com - Tu hogar ideal te está esperando</title>
-        <meta name="description" content="Encontrá tu propiedad ideal en Argentina. Miles de casas, departamentos y terrenos en venta y alquiler. Proyectos de inversión con alta rentabilidad." />
+        <title>PropiedadesArgentinas.com - Tu próximo hogar está acá</title>
+        <meta name="description" content="El portal número uno para comprar, alquilar e invertir en propiedades en Argentina. Miles de opciones disponibles." />
       </Helmet>
       
       <div className="min-h-screen">
@@ -30,10 +32,12 @@ const Home = () => {
           properties={featuredProperties.length > 0 ? featuredProperties : properties}
           onSeeMore={() => navigate('/comprar')}
         />
+        {properties.length > 3 && <LatestProperties properties={properties} />}
         <WhyChooseUs />
+        <PopularZones />
         <InvestmentProjectsPreview projects={investmentProjects} />
-        <PublishCTA />
         <Testimonials />
+        <PublishCTA />
       </div>
     </>
   );
