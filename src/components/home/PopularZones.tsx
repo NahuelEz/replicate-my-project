@@ -4,12 +4,12 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 
 const zones = [
-  { name: 'Palermo', image: 'https://images.unsplash.com/photo-1592245988388-57dd675a6689?q=80&w=2574&auto=format&fit=crop', alt:'Vista aérea del barrio de Palermo en Buenos Aires' },
-  { name: 'Caballito', image: 'https://images.unsplash.com/photo-1618225139749-7873f7193923?q=80&w=2574&auto=format&fit=crop', alt:'Parque Rivadavia en Caballito, Buenos Aires' },
-  { name: 'Belgrano', image: 'https://images.unsplash.com/photo-1572120360610-d971b9d7767c?q=80&w=2670&auto=format&fit=crop', alt:'Calle del barrio de Belgrano con grandes árboles' },
-  { name: 'Tigre', image: 'https://images.unsplash.com/photo-1610623209912-34575a85c246?q=80&w=2574&auto=format&fit=crop', alt:'Vista del delta del río Tigre con botes' },
-  { name: 'Pilar', image: 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?q=80&w=2574&auto=format&fit=crop', alt:'Casa moderna en un country en Pilar' },
-  { name: 'Mar del Plata', image: 'https://images.unsplash.com/photo-1589922530683-396a7c81b4a4?q=80&w=2670&auto=format&fit=crop', alt:'Vista de la costa en Mar del Plata' },
+  { name: 'Palermo', image: 'https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?q=80&w=2670&auto=format&fit=crop', alt:'Vista aérea del barrio de Palermo en Buenos Aires' },
+  { name: 'Caballito', image: 'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?q=80&w=2670&auto=format&fit=crop', alt:'Parque Rivadavia en Caballito, Buenos Aires' },
+  { name: 'Belgrano', image: 'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?q=80&w=2644&auto=format&fit=crop', alt:'Calle del barrio de Belgrano con grandes árboles' },
+  { name: 'Tigre', image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=2670&auto=format&fit=crop', alt:'Vista del delta del río Tigre con botes' },
+  { name: 'Pilar', image: 'https://images.unsplash.com/photo-1600585154526-990dced4db0d?q=80&w=2687&auto=format&fit=crop', alt:'Casa moderna en un country en Pilar' },
+  { name: 'Mar del Plata', image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=2673&auto=format&fit=crop', alt:'Vista de la costa en Mar del Plata' },
 ];
 
 interface ZoneCardProps {
