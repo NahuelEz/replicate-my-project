@@ -29,12 +29,48 @@ interface InvestmentProject {
   description: string;
 }
 
+interface Review {
+  id: string;
+  author: string;
+  rating: number;
+  comment: string;
+  date: string;
+}
+
+interface Service {
+  id: string;
+  title: string;
+  description: string;
+  priceRange: string;
+  deliveryTime: string;
+  rating: number;
+  reviews: Review[];
+  images: string[];
+}
+
+interface Professional {
+  id: string;
+  name: string;
+  specialty: string;
+  category: string;
+  location: string;
+  avatar: string;
+  reputation: {
+    rating: number;
+  };
+  services: Service[];
+  profileReviews: Review[];
+}
+
 interface DataContextType {
   properties: Property[];
   investmentProjects: InvestmentProject[];
+  professionals: Professional[];
   loading: boolean;
   getPropertyBySlug: (slug: string) => Property | undefined;
   getInvestmentProjectBySlug: (slug: string) => InvestmentProject | undefined;
+  getProfessionalById: (id: string) => Professional | undefined;
+  getProfessionalsByCategory: (categorySlug: string) => Professional[];
   addProperty: (property: any) => void;
 }
 
@@ -113,9 +149,62 @@ const mockInvestmentProjects: InvestmentProject[] = [
   },
 ];
 
+const mockProfessionals: Professional[] = [
+  {
+    id: 'prof-1',
+    name: 'Arq. María González',
+    specialty: 'Arquitecta & Diseñadora',
+    category: 'arquitectura-proyectos',
+    location: 'Buenos Aires, CABA',
+    avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400',
+    reputation: { rating: 4.8 },
+    services: [
+      {
+        id: 'serv-1',
+        title: 'Diseño y Proyecto de Vivienda',
+        description: 'Diseño completo de viviendas unifamiliares, incluyendo planos, renders 3D y documentación técnica para aprobación municipal.',
+        priceRange: '$500.000 - $1.500.000',
+        deliveryTime: '30-45 días',
+        rating: 4.9,
+        images: ['https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=800'],
+        reviews: [
+          {
+            id: 'rev-1',
+            author: 'Carlos Pérez',
+            rating: 5,
+            comment: 'Excelente trabajo, muy profesional y creativa. Superó nuestras expectativas.',
+            date: '2025-01-15'
+          }
+        ]
+      }
+    ],
+    profileReviews: [
+      {
+        id: 'prev-1',
+        author: 'Lucía Fernández',
+        rating: 5,
+        comment: 'Muy profesional y atenta a todos los detalles. Recomendada 100%.',
+        date: '2025-01-10'
+      }
+    ]
+  },
+  {
+    id: 'prof-2',
+    name: 'Ing. Roberto Martínez',
+    specialty: 'Ingeniero Civil',
+    category: 'ingenieros',
+    location: 'Córdoba, Argentina',
+    avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400',
+    reputation: { rating: 4.7 },
+    services: [],
+    profileReviews: []
+  }
+];
+
 export const DataProvider = ({ children }: { children: ReactNode }) => {
   const [properties] = useState<Property[]>(mockProperties);
   const [investmentProjects] = useState<InvestmentProject[]>(mockInvestmentProjects);
+  const [professionals] = useState<Professional[]>(mockProfessionals);
   const [loading] = useState(false);
 
   const getPropertyBySlug = (slug: string) => {
@@ -124,6 +213,15 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
 
   const getInvestmentProjectBySlug = (slug: string) => {
     return investmentProjects.find(p => p.slug === slug);
+  };
+
+  const getProfessionalById = (id: string) => {
+    return professionals.find(p => p.id === id);
+  };
+
+  const getProfessionalsByCategory = (categorySlug: string) => {
+    if (!categorySlug) return professionals;
+    return professionals.filter(p => p.category === categorySlug);
   };
 
   const addProperty = (property: any) => {
@@ -135,9 +233,12 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
       value={{
         properties,
         investmentProjects,
+        professionals,
         loading,
         getPropertyBySlug,
         getInvestmentProjectBySlug,
+        getProfessionalById,
+        getProfessionalsByCategory,
         addProperty,
       }}
     >
