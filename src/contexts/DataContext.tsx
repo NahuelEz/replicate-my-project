@@ -1,7 +1,7 @@
 import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
 import { useToast } from '@/hooks/use-toast';
 
-interface Property {
+export interface Property {
   id: number;
   title: string;
   slug: string;
