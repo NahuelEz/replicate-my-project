@@ -27,6 +27,8 @@ const Services = lazy(() => import("./pages/Services"));
 const Professionals = lazy(() => import("./pages/services/Professionals"));
 const ProfessionalProfile = lazy(() => import("./pages/services/ProfessionalProfile"));
 const ServiceDetail = lazy(() => import("./pages/services/ServiceDetail"));
+const Login = lazy(() => import("./pages/Login"));
+const Register = lazy(() => import("./pages/Register"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -56,6 +58,8 @@ const App = () => (
                     <Route path="/inversiones" element={<Investments />} />
                     <Route path="/blog" element={<Blog />} />
                     <Route path="/contacto" element={<Contact />} />
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/registro" element={<Register />} />
                     <Route path="/panel" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
                     <Route path="/para-desarrolladores" element={<ForDevelopers />} />
                     <Route path="/para-inmobiliarias" element={<ForRealEstate />} />
