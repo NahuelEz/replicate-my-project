@@ -17,6 +17,9 @@ import Dashboard from "./pages/Dashboard";
 import ForDevelopers from "./pages/ForDevelopers";
 import ForRealEstate from "./pages/ForRealEstate";
 import Services from "./pages/Services";
+import Professionals from "./pages/services/Professionals";
+import ProfessionalProfile from "./pages/services/ProfessionalProfile";
+import ServiceDetail from "./pages/services/ServiceDetail";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -43,6 +46,9 @@ const App = () => (
                   <Route path="/para-desarrolladores" element={<ForDevelopers />} />
                   <Route path="/para-inmobiliarias" element={<ForRealEstate />} />
                   <Route path="/servicios" element={<Services />} />
+                  <Route path="/servicios/:categorySlug" element={<Professionals />} />
+                  <Route path="/servicios/profesionales/:professionalId" element={<ProfessionalProfile />} />
+                  <Route path="/servicio/:professionalId/:serviceId" element={<ServiceDetail />} />
                   {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                   <Route path="*" element={<NotFound />} />
                 </Routes>
