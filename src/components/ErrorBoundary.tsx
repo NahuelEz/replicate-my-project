@@ -7,12 +7,13 @@ interface ErrorBoundaryProps {
 interface ErrorBoundaryState {
   hasError: boolean;
   error: Error | null;
+  errorInfo: React.ErrorInfo | null;
 }
 
 class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   constructor(props: ErrorBoundaryProps) {
     super(props);
-    this.state = { hasError: false, error: null };
+    this.state = { hasError: false, error: null, errorInfo: null };
   }
 
   static getDerivedStateFromError(error: Error) {
@@ -20,27 +21,34 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    this.setState({ errorInfo });
     console.error('ErrorBoundary caught an error:', error, errorInfo);
   }
 
   render() {
     if (this.state.hasError) {
       return (
-        <div className="flex items-center justify-center min-h-screen bg-background">
-          <div className="text-center p-8">
-            <h1 className="text-4xl font-heading font-bold text-foreground mb-4">
-              Algo salió mal
-            </h1>
-            <p className="text-muted-foreground mb-6">
-              Lo sentimos, ha ocurrido un error inesperado.
+        <div className="container mx-auto px-4 py-16 text-center">
+            <h1 className="text-3xl font-bold text-brand-celeste mb-4">¡Ups! Algo salió mal.</h1>
+            <p className="text-lg text-muted-foreground mb-8 max-w-lg mx-auto">
+                Estamos trabajando para solucionarlo. Por favor, intentá recargar la página o volvé más tarde.
             </p>
             <button
-              onClick={() => window.location.reload()}
-              className="btn-primary"
+                onClick={() => window.location.reload()}
+                className="px-6 py-2 bg-brand-celeste text-white font-bold rounded-lg hover:bg-brand-celeste/90"
             >
-              Recargar página
+                Recargar página
             </button>
-          </div>
+            {process.env.NODE_ENV === 'development' && (
+              <details className="text-left mt-8 p-4 bg-muted rounded">
+                <summary>Detalles del error</summary>
+                <pre className="mt-2 whitespace-pre-wrap text-sm">
+                  {this.state.error && this.state.error.toString()}
+                  <br />
+                  {this.state.errorInfo && this.state.errorInfo.componentStack}
+                </pre>
+              </details>
+            )}
         </div>
       );
     }
