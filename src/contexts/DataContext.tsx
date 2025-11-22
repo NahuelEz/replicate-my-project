@@ -66,12 +66,14 @@ interface DataContextType {
   properties: Property[];
   investmentProjects: InvestmentProject[];
   professionals: Professional[];
+  favorites: Property[];
   loading: boolean;
   getPropertyBySlug: (slug: string) => Property | undefined;
   getInvestmentProjectBySlug: (slug: string) => InvestmentProject | undefined;
   getProfessionalById: (id: string) => Professional | undefined;
   getProfessionalsByCategory: (categorySlug: string) => Professional[];
   addProperty: (property: any) => void;
+  toggleFavorite: (property: Property) => void;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -205,6 +207,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
   const [properties] = useState<Property[]>(mockProperties);
   const [investmentProjects] = useState<InvestmentProject[]>(mockInvestmentProjects);
   const [professionals] = useState<Professional[]>(mockProfessionals);
+  const [favorites, setFavorites] = useState<Property[]>([]);
   const [loading] = useState(false);
 
   const getPropertyBySlug = (slug: string) => {
@@ -228,18 +231,31 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     console.log('Property added:', property);
   };
 
+  const toggleFavorite = (property: Property) => {
+    setFavorites(prev => {
+      const exists = prev.some(fav => fav.id === property.id);
+      if (exists) {
+        return prev.filter(fav => fav.id !== property.id);
+      } else {
+        return [...prev, property];
+      }
+    });
+  };
+
   return (
     <DataContext.Provider
       value={{
         properties,
         investmentProjects,
         professionals,
+        favorites,
         loading,
         getPropertyBySlug,
         getInvestmentProjectBySlug,
         getProfessionalById,
         getProfessionalsByCategory,
         addProperty,
+        toggleFavorite,
       }}
     >
       {children}
