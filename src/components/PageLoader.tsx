@@ -1,12 +1,18 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 
 const PageLoader = () => {
   return (
-    <div className="flex items-center justify-center min-h-screen">
-      <div className="text-center">
-        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary mx-auto mb-4"></div>
-        <p className="text-muted-foreground">Cargando...</p>
-      </div>
+    <div className="flex items-center justify-center min-h-[calc(100vh-200px)]">
+      <motion.div
+        className="w-16 h-16 border-4 border-t-4 border-muted border-t-primary rounded-full"
+        animate={{ rotate: 360 }}
+        transition={{
+          repeat: Infinity,
+          ease: "linear",
+          duration: 1
+        }}
+      />
     </div>
   );
 };
