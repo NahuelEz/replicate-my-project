@@ -27,15 +27,16 @@ const StarRating = ({ rating, totalReviews, size = 'md' }: StarRatingProps) => {
           <Star
             key={star}
             className={`${sizeClasses[size]} ${
-              star <= rating ? 'fill-brand-dorado text-brand-dorado' : 'text-gray-300'
+              star <= Math.round(rating) ? 'fill-brand-dorado text-brand-dorado' : 'text-muted'
             }`}
           />
         ))}
       </div>
-      <span className={`${textSizes[size]} text-muted-foreground font-semibold`}>
-        {rating.toFixed(1)}
-        {totalReviews !== undefined && ` (${totalReviews})`}
-      </span>
+      {totalReviews !== undefined && (
+        <span className={`${textSizes[size]} text-muted-foreground`}>
+          ({totalReviews})
+        </span>
+      )}
     </div>
   );
 };
