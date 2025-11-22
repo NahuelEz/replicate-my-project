@@ -11,6 +11,11 @@ import Home from "./pages/Home";
 import BuyProperties from "./pages/BuyProperties";
 import RentProperties from "./pages/RentProperties";
 import Investments from "./pages/Investments";
+import Blog from "./pages/Blog";
+import Contact from "./pages/Contact";
+import Dashboard from "./pages/Dashboard";
+import ForDevelopers from "./pages/ForDevelopers";
+import ForRealEstate from "./pages/ForRealEstate";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -31,6 +36,11 @@ const App = () => (
                   <Route path="/comprar" element={<BuyProperties />} />
                   <Route path="/alquilar" element={<RentProperties />} />
                   <Route path="/inversiones" element={<Investments />} />
+                  <Route path="/blog" element={<Blog />} />
+                  <Route path="/contacto" element={<Contact />} />
+                  <Route path="/panel" element={<Dashboard />} />
+                  <Route path="/para-desarrolladores" element={<ForDevelopers />} />
+                  <Route path="/para-inmobiliarias" element={<ForRealEstate />} />
                   {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                   <Route path="*" element={<NotFound />} />
                 </Routes>
