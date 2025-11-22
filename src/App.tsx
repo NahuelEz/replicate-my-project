@@ -16,6 +16,7 @@ import Contact from "./pages/Contact";
 import Dashboard from "./pages/Dashboard";
 import ForDevelopers from "./pages/ForDevelopers";
 import ForRealEstate from "./pages/ForRealEstate";
+import Services from "./pages/Services";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -41,6 +42,7 @@ const App = () => (
                   <Route path="/panel" element={<Dashboard />} />
                   <Route path="/para-desarrolladores" element={<ForDevelopers />} />
                   <Route path="/para-inmobiliarias" element={<ForRealEstate />} />
+                  <Route path="/servicios" element={<Services />} />
                   {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                   <Route path="*" element={<NotFound />} />
                 </Routes>
