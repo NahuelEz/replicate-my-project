@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { useNavigate } from 'react-router-dom';
-import { Home, Heart, Settings, Edit, Trash2, TrendingUp, Building, PlusCircle } from 'lucide-react';
+import { Home, Heart, Settings, Edit, Trash2, TrendingUp, Building, PlusCircle, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
+import { useUserRole } from '@/hooks/useUserRole';
 import { useData } from '@/contexts/DataContext';
 import PropertyCard from '@/components/PropertyCard';
 import { motion } from 'framer-motion';
@@ -23,6 +24,7 @@ const Dashboard = () => {
   
   const { toast } = useToast();
   const { user, profile, signOut } = useAuth();
+  const { isAdmin, isRealEstateAgent } = useUserRole();
   const { properties } = useData();
   const navigate = useNavigate();
   
@@ -88,6 +90,15 @@ const Dashboard = () => {
                   </button>
                 );
               })}
+              {isAdmin && (
+                <button
+                  onClick={() => navigate('/admin')}
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-destructive text-destructive-foreground hover:bg-destructive/90 ml-auto"
+                >
+                  <Shield className="w-4 h-4" />
+                  <span className="hidden sm:inline">Admin</span>
+                </button>
+              )}
             </div>
 
             {/* Content */}
