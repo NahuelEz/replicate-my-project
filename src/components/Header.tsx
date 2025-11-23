@@ -42,7 +42,7 @@ const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user, signOut } = useAuth();
 
   const handleMenuClick = (path?: string) => {
     if (path) {
@@ -57,7 +57,7 @@ const Header = () => {
   };
 
   const handleLogout = () => {
-    logout();
+    signOut();
     toast({ title: "Sesión cerrada exitosamente." });
     navigate('/');
     setIsMenuOpen(false);

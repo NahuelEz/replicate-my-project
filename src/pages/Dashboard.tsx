@@ -22,7 +22,7 @@ const Dashboard = () => {
   });
   
   const { toast } = useToast();
-  const { user, logout } = useAuth();
+  const { user, profile, signOut } = useAuth();
   const { properties } = useData();
   const navigate = useNavigate();
   
@@ -195,7 +195,7 @@ const Dashboard = () => {
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground mb-1">Nombre</p>
-                      <p className="font-semibold">{user?.name || 'No configurado'}</p>
+                      <p className="font-semibold">{profile?.full_name || 'No configurado'}</p>
                     </div>
                     <div className="pt-4">
                       <Button onClick={() => setIsAccountModalOpen(true)} className="btn-primary">
@@ -204,7 +204,7 @@ const Dashboard = () => {
                       </Button>
                     </div>
                     <div className="pt-4 border-t">
-                      <Button onClick={logout} variant="destructive">
+                      <Button onClick={signOut} variant="destructive">
                         Cerrar Sesión
                       </Button>
                     </div>

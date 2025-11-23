@@ -27,9 +27,8 @@ const Services = lazy(() => import("./pages/Services"));
 const Professionals = lazy(() => import("./pages/services/Professionals"));
 const ProfessionalProfile = lazy(() => import("./pages/services/ProfessionalProfile"));
 const ServiceDetail = lazy(() => import("./pages/services/ServiceDetail"));
-const Login = lazy(() => import("./pages/Login"));
-const Register = lazy(() => import("./pages/Register"));
 const PropertyDetail = lazy(() => import("./pages/PropertyDetail"));
+const Auth = lazy(() => import("./pages/Auth"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -59,8 +58,8 @@ const App = () => (
                     <Route path="/inversiones" element={<Investments />} />
                     <Route path="/blog" element={<Blog />} />
                     <Route path="/contacto" element={<Contact />} />
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/registro" element={<Register />} />
+                    <Route path="/auth" element={<Auth />} />
+                    <Route path="/panel" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
                     <Route path="/panel" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
                     <Route path="/para-desarrolladores" element={<ForDevelopers />} />
                     <Route path="/para-inmobiliarias" element={<ForRealEstate />} />
@@ -68,7 +67,8 @@ const App = () => (
                     <Route path="/servicios/:categorySlug" element={<Professionals />} />
                     <Route path="/servicios/profesionales/:professionalId" element={<ProfessionalProfile />} />
                     <Route path="/servicio/:professionalId/:serviceId" element={<ServiceDetail />} />
-                    <Route path="/propiedad/:id" element={<PropertyDetail />} />
+          <Route path="/propiedad/:id" element={<PropertyDetail />} />
+          <Route path="/auth" element={<Auth />} />
                     {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                     <Route path="*" element={<NotFound />} />
                   </Routes>
