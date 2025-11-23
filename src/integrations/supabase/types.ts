@@ -14,6 +14,114 @@ export type Database = {
   }
   public: {
     Tables: {
+      investment_projects: {
+        Row: {
+          annual_return: number
+          capital_gain: number
+          coordinates: Json | null
+          created_at: string | null
+          delivery_date: string
+          description: string
+          id: string
+          images: string[] | null
+          location: string
+          min_investment: number
+          modality: string
+          name: string
+          publisher: Json | null
+          slug: string
+          status: string
+          unit_types: string[]
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          annual_return: number
+          capital_gain: number
+          coordinates?: Json | null
+          created_at?: string | null
+          delivery_date: string
+          description: string
+          id?: string
+          images?: string[] | null
+          location: string
+          min_investment: number
+          modality: string
+          name: string
+          publisher?: Json | null
+          slug: string
+          status: string
+          unit_types: string[]
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          annual_return?: number
+          capital_gain?: number
+          coordinates?: Json | null
+          created_at?: string | null
+          delivery_date?: string
+          description?: string
+          id?: string
+          images?: string[] | null
+          location?: string
+          min_investment?: number
+          modality?: string
+          name?: string
+          publisher?: Json | null
+          slug?: string
+          status?: string
+          unit_types?: string[]
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      professionals: {
+        Row: {
+          avatar: string | null
+          category_slug: string
+          created_at: string | null
+          id: string
+          location: string
+          name: string
+          profile_reviews: Json | null
+          reputation: Json
+          services: Json | null
+          specialty: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          avatar?: string | null
+          category_slug: string
+          created_at?: string | null
+          id?: string
+          location: string
+          name: string
+          profile_reviews?: Json | null
+          reputation: Json
+          services?: Json | null
+          specialty: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          avatar?: string | null
+          category_slug?: string
+          created_at?: string | null
+          id?: string
+          location?: string
+          name?: string
+          profile_reviews?: Json | null
+          reputation?: Json
+          services?: Json | null
+          specialty?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -41,6 +149,84 @@ export type Database = {
           phone?: string | null
           updated_at?: string
           whatsapp?: string | null
+        }
+        Relationships: []
+      }
+      properties: {
+        Row: {
+          area: number
+          bathrooms: number
+          baths: number | null
+          bedrooms: number
+          covered_surface: number | null
+          created_at: string | null
+          description: string | null
+          featured: boolean | null
+          garage: number | null
+          id: string
+          images: string[] | null
+          location: string
+          operation: string
+          price: string
+          rental_type: string | null
+          rooms: number | null
+          slug: string
+          status: string | null
+          surface: number | null
+          title: string
+          type: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          area: number
+          bathrooms: number
+          baths?: number | null
+          bedrooms: number
+          covered_surface?: number | null
+          created_at?: string | null
+          description?: string | null
+          featured?: boolean | null
+          garage?: number | null
+          id?: string
+          images?: string[] | null
+          location: string
+          operation: string
+          price: string
+          rental_type?: string | null
+          rooms?: number | null
+          slug: string
+          status?: string | null
+          surface?: number | null
+          title: string
+          type: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          area?: number
+          bathrooms?: number
+          baths?: number | null
+          bedrooms?: number
+          covered_surface?: number | null
+          created_at?: string | null
+          description?: string | null
+          featured?: boolean | null
+          garage?: number | null
+          id?: string
+          images?: string[] | null
+          location?: string
+          operation?: string
+          price?: string
+          rental_type?: string | null
+          rooms?: number | null
+          slug?: string
+          status?: string | null
+          surface?: number | null
+          title?: string
+          type?: string
+          updated_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }
