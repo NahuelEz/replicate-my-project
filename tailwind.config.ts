@@ -56,9 +56,9 @@ export default {
         },
       },
       fontFamily: {
-        heading: ['Roboto', 'sans-serif'],
-        body: ['Roboto', 'sans-serif'],
-        sans: ['Roboto', 'sans-serif'],
+        heading: ['Cooper Hewitt', 'sans-serif'],
+        body: ['DM Sans', 'sans-serif'],
+        sans: ['DM Sans', 'sans-serif'],
       },
       borderRadius: {
         lg: "var(--radius)",
