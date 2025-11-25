@@ -29,9 +29,9 @@ const Navbar = () => {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2">
-            <Home className="w-8 h-8 text-primary" />
-            <span className="text-xl font-heading font-bold text-foreground">
-              PROPIEDADES<span className="text-primary">ARGENTINAS.COM</span>
+            <Home className="w-8 h-8 text-[#2D3436]" />
+            <span className="text-base font-sans font-black text-[#2D3436] tracking-tight">
+              PROPIEDADES<span className="text-[#F97316]">ARGENTINAS.COM</span>
             </span>
           </Link>
 
@@ -40,21 +40,21 @@ const Navbar = () => {
             <NavigationMenu>
               <NavigationMenuList className="gap-8">
                 <NavigationMenuItem>
-                  <NavigationMenuTrigger className="bg-transparent hover:bg-transparent text-foreground font-medium text-sm">
+                  <NavigationMenuTrigger className="bg-transparent hover:bg-transparent text-[#2D3436] font-bold text-xs uppercase">
                     COMPRAR
                   </NavigationMenuTrigger>
                   <NavigationMenuContent>
-                    <div className="w-[400px] p-4">
-                      <Link to="/comprar?type=departamento" className="block px-4 py-2 hover:bg-muted rounded-md">
+                    <div className="w-[400px] p-4 bg-white">
+                      <Link to="/comprar?type=departamento" className="block px-4 py-2 hover:bg-gray-100 rounded-md text-sm">
                         Departamentos
                       </Link>
-                      <Link to="/comprar?type=casa" className="block px-4 py-2 hover:bg-muted rounded-md">
+                      <Link to="/comprar?type=casa" className="block px-4 py-2 hover:bg-gray-100 rounded-md text-sm">
                         Casas
                       </Link>
-                      <Link to="/comprar?type=terreno" className="block px-4 py-2 hover:bg-muted rounded-md">
+                      <Link to="/comprar?type=terreno" className="block px-4 py-2 hover:bg-gray-100 rounded-md text-sm">
                         Terrenos
                       </Link>
-                      <Link to="/comprar?type=local" className="block px-4 py-2 hover:bg-muted rounded-md">
+                      <Link to="/comprar?type=local" className="block px-4 py-2 hover:bg-gray-100 rounded-md text-sm">
                         Locales Comerciales
                       </Link>
                     </div>
@@ -62,21 +62,21 @@ const Navbar = () => {
                 </NavigationMenuItem>
 
                 <NavigationMenuItem>
-                  <NavigationMenuTrigger className="bg-transparent hover:bg-transparent text-foreground font-medium text-sm">
+                  <NavigationMenuTrigger className="bg-transparent hover:bg-transparent text-[#2D3436] font-bold text-xs uppercase">
                     ALQUILAR
                   </NavigationMenuTrigger>
                   <NavigationMenuContent>
-                    <div className="w-[400px] p-4">
-                      <Link to="/alquilar?type=departamento" className="block px-4 py-2 hover:bg-muted rounded-md">
+                    <div className="w-[400px] p-4 bg-white">
+                      <Link to="/alquilar?type=departamento" className="block px-4 py-2 hover:bg-gray-100 rounded-md text-sm">
                         Departamentos
                       </Link>
-                      <Link to="/alquilar?type=casa" className="block px-4 py-2 hover:bg-muted rounded-md">
+                      <Link to="/alquilar?type=casa" className="block px-4 py-2 hover:bg-gray-100 rounded-md text-sm">
                         Casas
                       </Link>
-                      <Link to="/alquilar?rental_type=temporal" className="block px-4 py-2 hover:bg-muted rounded-md">
+                      <Link to="/alquilar?rental_type=temporal" className="block px-4 py-2 hover:bg-gray-100 rounded-md text-sm">
                         Alquiler Temporal
                       </Link>
-                      <Link to="/alquilar?type=local" className="block px-4 py-2 hover:bg-muted rounded-md">
+                      <Link to="/alquilar?type=local" className="block px-4 py-2 hover:bg-gray-100 rounded-md text-sm">
                         Locales Comerciales
                       </Link>
                     </div>
@@ -84,27 +84,27 @@ const Navbar = () => {
                 </NavigationMenuItem>
 
                 <NavigationMenuItem>
-                  <Link to="/inversiones" className="text-foreground hover:text-primary font-medium text-sm px-4 py-2">
+                  <Link to="/inversiones" className="text-[#2D3436] hover:text-primary font-bold text-xs uppercase px-4 py-2">
                     INVERTIR
                   </Link>
                 </NavigationMenuItem>
 
                 <NavigationMenuItem>
-                  <Link to="/servicios" className="text-foreground hover:text-primary font-medium text-sm px-4 py-2">
+                  <Link to="/servicios" className="text-[#2D3436] hover:text-primary font-bold text-xs uppercase px-4 py-2">
                     SERVICIOS
                   </Link>
                 </NavigationMenuItem>
 
                 <NavigationMenuItem>
-                  <NavigationMenuTrigger className="bg-transparent hover:bg-transparent text-foreground font-medium text-sm">
+                  <NavigationMenuTrigger className="bg-transparent hover:bg-transparent text-[#2D3436] font-bold text-xs uppercase">
                     PRODUCTOS
                   </NavigationMenuTrigger>
                   <NavigationMenuContent>
-                    <div className="w-[400px] p-4">
-                      <Link to="/para-inmobiliarias" className="block px-4 py-2 hover:bg-muted rounded-md">
+                    <div className="w-[400px] p-4 bg-white">
+                      <Link to="/para-inmobiliarias" className="block px-4 py-2 hover:bg-gray-100 rounded-md text-sm">
                         Para Inmobiliarias
                       </Link>
-                      <Link to="/para-desarrolladores" className="block px-4 py-2 hover:bg-muted rounded-md">
+                      <Link to="/para-desarrolladores" className="block px-4 py-2 hover:bg-gray-100 rounded-md text-sm">
                         Para Desarrolladores
                       </Link>
                     </div>
