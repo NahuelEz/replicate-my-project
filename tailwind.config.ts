@@ -56,8 +56,9 @@ export default {
         },
       },
       fontFamily: {
-        heading: ['Playfair Display', 'Georgia', 'serif'],
-        body: ['Inter', 'sans-serif'],
+        heading: ['Roboto', 'sans-serif'],
+        body: ['Roboto', 'sans-serif'],
+        sans: ['Roboto', 'sans-serif'],
       },
       borderRadius: {
         lg: "var(--radius)",
