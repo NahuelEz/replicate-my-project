@@ -5,6 +5,7 @@ import { Search, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import heroBg from '@/assets/hero-bg.jpg';
 
 const HeroSection = () => {
   const navigate = useNavigate();
@@ -39,7 +40,7 @@ const HeroSection = () => {
   return (
     <section className="relative py-24 md:py-32 bg-white">
       <div className="absolute inset-0 h-full w-full">
-         <img className="h-full w-full object-cover" alt="Moderno edificio de apartamentos con balcones de cristal" src="https://images.unsplash.com/photo-1696550876347-fc196ae0cfdc" />
+         <img className="h-full w-full object-cover" alt="Moderno edificio de apartamentos con balcones de cristal" src={heroBg} />
       </div>
       <div className="absolute inset-0 bg-black/60 z-10"></div>
       <div className="container mx-auto px-4 relative z-20">
