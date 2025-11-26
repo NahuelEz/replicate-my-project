@@ -7,6 +7,7 @@ import FeaturedProperties from '@/components/home/FeaturedProperties';
 import LatestProperties from '@/components/home/LatestProperties';
 import AdPlaceholder from '@/components/AdPlaceholder';
 import CTABanner from '@/components/home/CTABanner';
+import FeaturedServices from '@/components/home/FeaturedServices';
 import WhyChooseUs from '@/components/home/WhyChooseUs';
 import PopularZones from '@/components/home/PopularZones';
 import InvestmentProjectsPreview from '@/components/home/InvestmentProjectsPreview';
@@ -45,12 +46,7 @@ const Home = () => {
           <AdPlaceholder className="min-h-[200px]" />
         </div>
         <CTABanner />
-        <FeaturedProperties 
-          properties={featuredProperties.length > 0 ? featuredProperties : properties.slice(0, 4)}
-          onSeeMore={() => navigate('/comprar')}
-          title="Productos Destacados"
-          subtitle="Insumos y contenedores para tu próximo proyecto."
-        />
+        <FeaturedServices />
         <Testimonials />
         <PublishCTA />
       </div>
