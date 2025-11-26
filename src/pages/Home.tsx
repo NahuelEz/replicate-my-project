@@ -40,6 +40,9 @@ const Home = () => {
         <WhyChooseUs />
         <PopularZones />
         <InvestmentProjectsPreview projects={investmentProjects} />
+        <div className="container mx-auto px-4 py-12">
+          <AdPlaceholder className="min-h-[200px]" />
+        </div>
         <Testimonials />
         <PublishCTA />
       </div>
