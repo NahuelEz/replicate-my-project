@@ -5,6 +5,7 @@ import HeroSection from '@/components/home/HeroSection';
 import LookingForSection from '@/components/home/LookingForSection';
 import FeaturedProperties from '@/components/home/FeaturedProperties';
 import LatestProperties from '@/components/home/LatestProperties';
+import AdPlaceholder from '@/components/AdPlaceholder';
 import WhyChooseUs from '@/components/home/WhyChooseUs';
 import PopularZones from '@/components/home/PopularZones';
 import InvestmentProjectsPreview from '@/components/home/InvestmentProjectsPreview';
@@ -33,6 +34,9 @@ const Home = () => {
           onSeeMore={() => navigate('/comprar')}
         />
         {properties.length > 3 && <LatestProperties properties={properties} />}
+        <div className="container mx-auto px-4 py-12">
+          <AdPlaceholder className="min-h-[200px]" />
+        </div>
         <WhyChooseUs />
         <PopularZones />
         <InvestmentProjectsPreview projects={investmentProjects} />
