@@ -20,9 +20,16 @@ interface Property {
 interface FeaturedPropertiesProps {
   properties: Property[];
   onSeeMore: () => void;
+  title?: string;
+  subtitle?: string;
 }
 
-const FeaturedProperties = ({ properties, onSeeMore }: FeaturedPropertiesProps) => {
+const FeaturedProperties = ({ 
+  properties, 
+  onSeeMore, 
+  title = "Propiedades Destacadas",
+  subtitle = "Una selección de las mejores oportunidades del mercado, elegidas para vos."
+}: FeaturedPropertiesProps) => {
   return (
     <section className="py-16 bg-muted">
       <div className="container mx-auto px-4">
@@ -31,18 +38,26 @@ const FeaturedProperties = ({ properties, onSeeMore }: FeaturedPropertiesProps) 
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-12"
+          className="flex justify-between items-center mb-12"
         >
-          <h2 className="text-3xl md:text-4xl font-heading font-bold text-foreground mb-2">
-            Propiedades Destacadas
-          </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Una selección de las mejores oportunidades del mercado, elegidas para vos.
-          </p>
+          <div>
+            <h2 className="text-3xl md:text-4xl font-heading font-bold text-foreground mb-2">
+              {title}
+            </h2>
+            <p className="text-lg text-muted-foreground">
+              {subtitle}
+            </p>
+          </div>
+          <button 
+            onClick={onSeeMore}
+            className="text-brand-celeste hover:underline font-bold hidden md:block"
+          >
+            Destacar mi publicación
+          </button>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {properties.slice(0, 3).map((property, index) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {properties.slice(0, 4).map((property, index) => (
             <motion.div
               key={property.id}
               initial={{ opacity: 0, y: 20 }}
