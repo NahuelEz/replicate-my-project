@@ -23,6 +23,8 @@ const Contact = lazy(() => import("./pages/Contact"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const PublishProperty = lazy(() => import("./pages/PublishProperty"));
 const PublishSelector = lazy(() => import("./pages/PublishSelector"));
+const PublishInvestment = lazy(() => import("./pages/PublishInvestment"));
+const PublishService = lazy(() => import("./pages/PublishService"));
 const Admin = lazy(() => import("./pages/Admin"));
 const ForDevelopers = lazy(() => import("./pages/ForDevelopers"));
 const ForRealEstate = lazy(() => import("./pages/ForRealEstate"));
@@ -74,8 +76,8 @@ const App = () => (
                     <Route path="/panel" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
                     <Route path="/publicar" element={<ProtectedRoute><PublishSelector /></ProtectedRoute>} />
                     <Route path="/publicar/propiedad" element={<ProtectedRoute><PublishProperty /></ProtectedRoute>} />
-                    <Route path="/publicar/inversion" element={<ProtectedRoute><PublishProperty /></ProtectedRoute>} />
-                    <Route path="/publicar/servicio" element={<ProtectedRoute><PublishProperty /></ProtectedRoute>} />
+                    <Route path="/publicar/inversion" element={<ProtectedRoute><PublishInvestment /></ProtectedRoute>} />
+                    <Route path="/publicar/servicio" element={<ProtectedRoute><PublishService /></ProtectedRoute>} />
                     <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
                     <Route path="/para-desarrolladores" element={<ForDevelopers />} />
                     <Route path="/para-inmobiliarias" element={<ForRealEstate />} />
