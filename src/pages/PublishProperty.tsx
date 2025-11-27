@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { useUserRole } from '@/hooks/useUserRole';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,13 +9,11 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { Home, Upload } from 'lucide-react';
-import PageLoader from '@/components/PageLoader';
+import { Upload } from 'lucide-react';
 
 const PublishProperty = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { isAdmin, isRealEstateAgent, loading: roleLoading } = useUserRole();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
 
@@ -78,35 +75,18 @@ const PublishProperty = () => {
         description: 'Tu propiedad ha sido publicada correctamente',
       });
 
-      navigate('/dashboard');
+      navigate('/panel');
     } catch (error) {
       console.error('Error publishing property:', error);
       toast({
         title: 'Error',
-        description: 'No se pudo publicar la propiedad. Verifica que tengas los permisos necesarios.',
+        description: 'No se pudo publicar la propiedad. Por favor intenta de nuevo.',
         variant: 'destructive',
       });
     } finally {
       setLoading(false);
     }
   };
-
-  if (roleLoading) {
-    return <PageLoader />;
-  }
-
-  if (!user || (!isAdmin && !isRealEstateAgent)) {
-    return (
-      <div className="container mx-auto px-4 py-16 text-center">
-        <Home className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-        <h1 className="text-2xl font-bold mb-2">Acceso Restringido</h1>
-        <p className="text-muted-foreground mb-6">
-          Solo agentes inmobiliarios y administradores pueden publicar propiedades.
-        </p>
-        <Button onClick={() => navigate('/contact')}>Contactar para ser agente</Button>
-      </div>
-    );
-  }
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -275,7 +255,7 @@ const PublishProperty = () => {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => navigate('/dashboard')}
+                onClick={() => navigate('/panel')}
               >
                 Cancelar
               </Button>
