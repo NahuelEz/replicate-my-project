@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Menu, X, ChevronDown, Home } from 'lucide-react';
+import { Menu, X, ChevronDown, Home, MessageSquare } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import {
   NavigationMenu,
@@ -120,6 +120,14 @@ const Navbar = () => {
               <>
                 <Button 
                   variant="ghost" 
+                  onClick={() => navigate('/mensajes')}
+                  className="text-foreground font-medium"
+                >
+                  <MessageSquare className="w-4 h-4 mr-2" />
+                  Mensajes
+                </Button>
+                <Button 
+                  variant="ghost" 
                   onClick={() => navigate('/dashboard')}
                   className="text-foreground font-medium"
                 >
@@ -200,6 +208,14 @@ const Navbar = () => {
               </Link>
               {isAuthenticated ? (
                 <>
+                  <Button 
+                    variant="ghost" 
+                    onClick={() => { navigate('/mensajes'); setIsOpen(false); }}
+                    className="justify-start"
+                  >
+                    <MessageSquare className="w-4 h-4 mr-2" />
+                    Mensajes
+                  </Button>
                   <Button 
                     variant="ghost" 
                     onClick={() => { navigate('/dashboard'); setIsOpen(false); }}

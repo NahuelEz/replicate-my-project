@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { useData } from '@/contexts/DataContext';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import { Share2, Heart, ArrowLeft, Phone, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
@@ -17,6 +19,7 @@ const PropertyDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { properties, favorites, toggleFavorite } = useData();
+  const { user } = useAuth();
   const { toast } = useToast();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
@@ -75,11 +78,65 @@ const PropertyDetail = () => {
     });
   };
 
-  const handleContactDirect = () => {
-    toast({
-      title: 'Contactar',
-      description: 'Funcionalidad de contacto disponible próximamente',
-    });
+  const handleContactDirect = async (type: 'call' | 'message') => {
+    if (type === 'call') {
+      toast({
+        title: 'Llamar',
+        description: 'Funcionalidad de llamada disponible próximamente',
+      });
+    } else {
+      // Message functionality
+      if (!user) {
+        toast({
+          title: 'Iniciar sesión',
+          description: 'Debes iniciar sesión para enviar mensajes',
+          variant: 'destructive',
+        });
+        navigate('/auth');
+        return;
+      }
+
+      if (!property) return;
+
+      // Check if conversation already exists
+      try {
+        const { data: existingConv } = await supabase
+          .from('conversations')
+          .select('id')
+          .eq('property_id', property.id.toString())
+          .eq('owner_id', 'OWNER_USER_ID') // TODO: Get actual owner from property
+          .eq('participant_id', user.id)
+          .maybeSingle();
+
+        if (existingConv) {
+          navigate(`/mensajes/${existingConv.id}`);
+          return;
+        }
+
+        // Create new conversation
+        const { data: newConv, error } = await supabase
+          .from('conversations')
+          .insert({
+            property_id: property.id.toString(),
+            property_title: property.title,
+            owner_id: 'OWNER_USER_ID', // TODO: Get actual owner from property
+            participant_id: user.id,
+          })
+          .select()
+          .single();
+
+        if (error) throw error;
+
+        navigate(`/mensajes/${newConv.id}`);
+      } catch (error: any) {
+        console.error('Error creating conversation:', error);
+        toast({
+          title: 'Error',
+          description: 'Error al iniciar conversación',
+          variant: 'destructive',
+        });
+      }
+    }
   };
 
   // Prepare data for PropertyHeader
@@ -166,14 +223,14 @@ const PropertyDetail = () => {
                 <h3 className="text-lg font-semibold mb-4">Contactar</h3>
                 <div className="space-y-3">
                   <Button
-                    onClick={handleContactDirect}
+                    onClick={() => handleContactDirect('call')}
                     className="w-full"
                   >
                     <Phone className="w-4 h-4 mr-2" />
                     Llamar
                   </Button>
                   <Button
-                    onClick={handleContactDirect}
+                    onClick={() => handleContactDirect('message')}
                     variant="outline"
                     className="w-full"
                   >
