@@ -56,7 +56,14 @@ const App = () => (
                   <Routes>
                     <Route path="/" element={<Home />} />
                     <Route path="/comprar" element={<BuyProperties />} />
+                    <Route path="/comprar/departamento" element={<BuyProperties />} />
+                    <Route path="/comprar/casa" element={<BuyProperties />} />
+                    <Route path="/comprar/ph" element={<BuyProperties />} />
+                    <Route path="/comprar/terreno" element={<BuyProperties />} />
                     <Route path="/alquilar" element={<RentProperties />} />
+                    <Route path="/alquiler-temporal" element={<RentProperties />} />
+                    <Route path="/alquilar/oficina" element={<RentProperties />} />
+                    <Route path="/alquilar/local" element={<RentProperties />} />
                     <Route path="/inversiones" element={<Investments />} />
                     <Route path="/blog" element={<Blog />} />
                     <Route path="/contacto" element={<Contact />} />
@@ -69,6 +76,9 @@ const App = () => (
                     <Route path="/para-desarrolladores" element={<ForDevelopers />} />
                     <Route path="/para-inmobiliarias" element={<ForRealEstate />} />
                     <Route path="/servicios" element={<Services />} />
+                    <Route path="/servicios/arquitectura-proyectos" element={<Professionals />} />
+                    <Route path="/servicios/electricistas" element={<Professionals />} />
+                    <Route path="/servicios/consultores-inmobiliarios" element={<Professionals />} />
                     <Route path="/servicios/:categorySlug" element={<Professionals />} />
                     <Route path="/servicios/profesionales/:professionalId" element={<ProfessionalProfile />} />
                     <Route path="/servicio/:professionalId/:serviceId" element={<ServiceDetail />} />
