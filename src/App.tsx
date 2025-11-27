@@ -18,6 +18,7 @@ const Home = lazy(() => import("./pages/Home"));
 const BuyProperties = lazy(() => import("./pages/BuyProperties"));
 const RentProperties = lazy(() => import("./pages/RentProperties"));
 const Investments = lazy(() => import("./pages/Investments"));
+const InvestmentDetail = lazy(() => import("./pages/InvestmentDetail"));
 const Blog = lazy(() => import("./pages/Blog"));
 const Contact = lazy(() => import("./pages/Contact"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
@@ -68,6 +69,7 @@ const App = () => (
                     <Route path="/alquilar/oficina" element={<RentProperties />} />
                     <Route path="/alquilar/local" element={<RentProperties />} />
                     <Route path="/inversiones" element={<Investments />} />
+                    <Route path="/proyecto/:slug" element={<InvestmentDetail />} />
                     <Route path="/blog" element={<Blog />} />
                     <Route path="/contacto" element={<Contact />} />
                     <Route path="/auth" element={<Auth />} />
