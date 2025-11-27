@@ -134,7 +134,7 @@ const Dashboard = () => {
 
   const tabs = [
     { id: 'properties', label: 'Mis Propiedades', icon: Home },
-    { id: 'favorites', label: 'Favoritos', icon: Heart },
+    { id: 'publications', label: 'Inversiones y Servicios', icon: Building },
     { id: 'stats', label: 'Estadísticas', icon: TrendingUp },
     { id: 'account', label: 'Mi Cuenta', icon: Settings },
   ];
@@ -255,9 +255,9 @@ const Dashboard = () => {
                 </div>
               )}
 
-              {activeTab === 'favorites' && (
+              {activeTab === 'publications' && (
                 <div>
-                  <h2 className="text-2xl font-heading font-bold mb-6">Todas mis Publicaciones</h2>
+                  <h2 className="text-2xl font-heading font-bold mb-6">Inversiones y Servicios</h2>
                   
                   {loading ? (
                     <div className="text-center py-12">
