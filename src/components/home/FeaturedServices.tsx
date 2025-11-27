@@ -1,9 +1,12 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { Building2, Paintbrush, Hammer, Wrench, HardHat, FileText } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import disenoProyectosImg from '@/assets/services/diseno-proyectos.jpg';
+import construccionObrasImg from '@/assets/services/construccion-obras.jpg';
+import remodelacionesImg from '@/assets/services/remodelaciones.jpg';
+import instalacionesImg from '@/assets/services/instalaciones.jpg';
 
 const services = [
   {
@@ -11,7 +14,7 @@ const services = [
     title: 'Diseño de Proyectos',
     category: 'ARQUITECTURA',
     description: 'Diseño arquitectónico completo para tu proyecto',
-    icon: FileText,
+    image: disenoProyectosImg,
     featured: true,
   },
   {
@@ -19,7 +22,7 @@ const services = [
     title: 'Construcción de Obras',
     category: 'CONSTRUCCIÓN',
     description: 'Construcción llave en mano de proyectos residenciales',
-    icon: HardHat,
+    image: construccionObrasImg,
     featured: false,
   },
   {
@@ -27,7 +30,7 @@ const services = [
     title: 'Remodelaciones',
     category: 'REFACCIONES',
     description: 'Renovación y actualización de espacios',
-    icon: Hammer,
+    image: remodelacionesImg,
     featured: false,
   },
   {
@@ -35,7 +38,7 @@ const services = [
     title: 'Instalaciones',
     category: 'SERVICIOS',
     description: 'Instalaciones eléctricas, sanitarias y gas',
-    icon: Wrench,
+    image: instalacionesImg,
     featured: false,
   },
 ];
@@ -79,28 +82,32 @@ const FeaturedServices = () => {
               transition={{ duration: 0.5, delay: index * 0.1 }}
             >
               <Card className="relative h-full overflow-hidden group cursor-pointer hover:shadow-lg transition-all duration-300 bg-background">
-                <div className="p-6">
-                  <div className="flex justify-between items-start mb-4">
+                <div className="relative h-48 overflow-hidden">
+                  <img 
+                    src={service.image} 
+                    alt={service.title}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/40 to-transparent" />
+                  <div className="absolute top-4 left-4 right-4 flex justify-between items-start">
                     <Badge 
                       variant="secondary" 
-                      className="bg-brand-dorado/20 text-brand-dorado border-0 font-bold"
+                      className="bg-brand-dorado/90 text-white border-0 font-bold backdrop-blur-sm"
                     >
                       {service.category}
                     </Badge>
                     {service.featured && (
                       <Badge 
                         variant="secondary" 
-                        className="bg-brand-celeste/20 text-brand-celeste border-0 font-bold"
+                        className="bg-brand-celeste/90 text-white border-0 font-bold backdrop-blur-sm"
                       >
                         NUEVO
                       </Badge>
                     )}
                   </div>
-
-                  <div className="flex items-center justify-center w-16 h-16 bg-muted rounded-lg mb-4">
-                    <service.icon className="w-8 h-8 text-brand-celeste" />
-                  </div>
-
+                </div>
+                
+                <div className="p-6">
                   <h3 className="text-xl font-heading font-bold text-foreground mb-2 group-hover:text-brand-celeste transition-colors">
                     {service.title}
                   </h3>
