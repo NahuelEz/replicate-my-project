@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { useNavigate } from 'react-router-dom';
 import { Home, Heart, Settings, Edit, Trash2, TrendingUp, Building, PlusCircle, Shield } from 'lucide-react';
@@ -8,10 +8,10 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserRole } from '@/hooks/useUserRole';
-import { useData } from '@/contexts/DataContext';
 import PropertyCard from '@/components/PropertyCard';
 import { motion } from 'framer-motion';
 import { Label } from '@/components/ui/label';
+import { supabase } from '@/integrations/supabase/client';
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('properties');
@@ -25,12 +25,64 @@ const Dashboard = () => {
   const { toast } = useToast();
   const { user, profile, signOut } = useAuth();
   const { isAdmin, isRealEstateAgent } = useUserRole();
-  const { properties } = useData();
   const navigate = useNavigate();
   
-  // Mock user's properties
-  const userProperties = properties.filter(p => p.operation === "Venta").slice(0, 2);
-  const favoriteProperties = properties.filter(p => p.operation === "Alquiler").slice(0, 2);
+  const [userProperties, setUserProperties] = useState<any[]>([]);
+  const [userInvestments, setUserInvestments] = useState<any[]>([]);
+  const [userServices, setUserServices] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchUserPublications = async () => {
+      if (!user) return;
+
+      try {
+        setLoading(true);
+
+        // Fetch user properties
+        const { data: properties, error: propsError } = await supabase
+          .from('properties')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false });
+
+        if (propsError) throw propsError;
+
+        // Fetch user investments
+        const { data: investments, error: investError } = await supabase
+          .from('investment_projects')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false });
+
+        if (investError) throw investError;
+
+        // Fetch user professional services
+        const { data: services, error: servicesError } = await supabase
+          .from('professionals')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false });
+
+        if (servicesError) throw servicesError;
+
+        setUserProperties(properties || []);
+        setUserInvestments(investments || []);
+        setUserServices(services || []);
+      } catch (error) {
+        console.error('Error fetching user publications:', error);
+        toast({
+          title: 'Error',
+          description: 'No se pudieron cargar tus publicaciones',
+          variant: 'destructive'
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserPublications();
+  }, [user, toast]);
 
   const handleAccountSave = (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,11 +90,28 @@ const Dashboard = () => {
     setIsAccountModalOpen(false);
   };
 
-  const handleDelete = (id: number) => {
-    toast({ 
-      title: "Propiedad eliminada", 
-      description: "La propiedad ha sido eliminada correctamente." 
-    });
+  const handleDeleteProperty = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('properties')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setUserProperties(prev => prev.filter(p => p.id !== id));
+      toast({ 
+        title: "Propiedad eliminada", 
+        description: "La propiedad ha sido eliminada correctamente." 
+      });
+    } catch (error) {
+      console.error('Error deleting property:', error);
+      toast({
+        title: 'Error',
+        description: 'No se pudo eliminar la propiedad',
+        variant: 'destructive'
+      });
+    }
   };
 
   const tabs = [
@@ -113,7 +182,11 @@ const Dashboard = () => {
                     </Button>
                   </div>
                   
-                  {userProperties.length > 0 ? (
+                  {loading ? (
+                    <div className="text-center py-12">
+                      <p className="text-muted-foreground">Cargando...</p>
+                    </div>
+                  ) : userProperties.length > 0 ? (
                     <div className="grid md:grid-cols-2 gap-6">
                       {userProperties.map((property) => (
                         <div key={property.id} className="relative">
@@ -127,7 +200,7 @@ const Dashboard = () => {
                               variant="outline" 
                               size="sm" 
                               className="flex-1"
-                              onClick={() => handleDelete(property.id)}
+                              onClick={() => handleDeleteProperty(property.id)}
                             >
                               <Trash2 className="w-4 h-4 mr-2" />
                               Eliminar
@@ -152,22 +225,58 @@ const Dashboard = () => {
 
               {activeTab === 'favorites' && (
                 <div>
-                  <h2 className="text-2xl font-heading font-bold mb-6">Propiedades Favoritas</h2>
-                  {favoriteProperties.length > 0 ? (
-                    <div className="grid md:grid-cols-2 gap-6">
-                      {favoriteProperties.map((property) => (
-                        <PropertyCard key={property.id} property={property} />
-                      ))}
+                  <h2 className="text-2xl font-heading font-bold mb-6">Todas mis Publicaciones</h2>
+                  
+                  {loading ? (
+                    <div className="text-center py-12">
+                      <p className="text-muted-foreground">Cargando...</p>
                     </div>
                   ) : (
-                    <div className="text-center py-12">
-                      <Heart className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-                      <p className="text-muted-foreground mb-4">
-                        No tienes propiedades favoritas aún
-                      </p>
-                      <Button onClick={() => navigate('/comprar')} className="btn-primary">
-                        Explorar propiedades
-                      </Button>
+                    <div className="space-y-8">
+                      {/* Investment Projects */}
+                      {userInvestments.length > 0 && (
+                        <div>
+                          <h3 className="text-xl font-semibold mb-4">Proyectos de Inversión ({userInvestments.length})</h3>
+                          <div className="grid md:grid-cols-2 gap-4">
+                            {userInvestments.map((investment) => (
+                              <div key={investment.id} className="border rounded-lg p-4">
+                                <h4 className="font-semibold">{investment.name}</h4>
+                                <p className="text-sm text-muted-foreground mt-1">{investment.location}</p>
+                                <p className="text-sm mt-2">Inversión mínima: ${investment.min_investment.toLocaleString()}</p>
+                                <p className="text-sm">Retorno anual: {investment.annual_return}%</p>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Professional Services */}
+                      {userServices.length > 0 && (
+                        <div>
+                          <h3 className="text-xl font-semibold mb-4">Servicios Profesionales ({userServices.length})</h3>
+                          <div className="grid md:grid-cols-2 gap-4">
+                            {userServices.map((service) => (
+                              <div key={service.id} className="border rounded-lg p-4">
+                                <h4 className="font-semibold">{service.name}</h4>
+                                <p className="text-sm text-muted-foreground mt-1">{service.specialty}</p>
+                                <p className="text-sm mt-2">{service.location}</p>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {userInvestments.length === 0 && userServices.length === 0 && (
+                        <div className="text-center py-12">
+                          <Building className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+                          <p className="text-muted-foreground mb-4">
+                            No tienes otras publicaciones aún
+                          </p>
+                          <Button onClick={() => navigate('/publicar')} className="btn-primary">
+                            Publicar inversión o servicio
+                          </Button>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
