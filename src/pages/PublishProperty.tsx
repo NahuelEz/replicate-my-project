@@ -9,13 +9,15 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { Upload } from 'lucide-react';
+import { Upload, X, ImagePlus } from 'lucide-react';
 
 const PublishProperty = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+  const [uploadedImages, setUploadedImages] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
 
   const [formData, setFormData] = useState({
     title: '',
@@ -31,6 +33,71 @@ const PublishProperty = () => {
     rental_type: '',
   });
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    
+    // Validar tamaño máximo (5MB por imagen)
+    const maxSize = 5 * 1024 * 1024;
+    const validFiles = files.filter(file => {
+      if (file.size > maxSize) {
+        toast({
+          title: 'Archivo muy grande',
+          description: `${file.name} supera los 5MB`,
+          variant: 'destructive',
+        });
+        return false;
+      }
+      return true;
+    });
+
+    // Limitar a 10 imágenes máximo
+    if (uploadedImages.length + validFiles.length > 10) {
+      toast({
+        title: 'Límite de imágenes',
+        description: 'Máximo 10 imágenes por propiedad',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setUploadedImages(prev => [...prev, ...validFiles]);
+    
+    // Crear previews
+    validFiles.forEach(file => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreviews(prev => [...prev, reader.result as string]);
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const removeImage = (index: number) => {
+    setUploadedImages(prev => prev.filter((_, i) => i !== index));
+    setImagePreviews(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const uploadImages = async (propertyId: string): Promise<string[]> => {
+    const uploadPromises = uploadedImages.map(async (file, index) => {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${propertyId}/${Date.now()}_${index}.${fileExt}`;
+      
+      const { data, error } = await supabase.storage
+        .from('property-images')
+        .upload(fileName, file);
+
+      if (error) throw error;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('property-images')
+        .getPublicUrl(fileName);
+
+      return publicUrl;
+    });
+
+    return Promise.all(uploadPromises);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -38,6 +105,15 @@ const PublishProperty = () => {
       toast({
         title: 'Error',
         description: 'Debes iniciar sesión para publicar una propiedad',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (uploadedImages.length === 0) {
+      toast({
+        title: 'Imágenes requeridas',
+        description: 'Debes agregar al menos una imagen de la propiedad',
         variant: 'destructive',
       });
       return;
@@ -51,24 +127,41 @@ const PublishProperty = () => {
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/(^-|-$)/g, '');
 
-      const { error } = await supabase.from('properties').insert({
-        user_id: user.id,
-        title: formData.title,
-        description: formData.description,
-        operation: formData.operation,
-        type: formData.type,
-        location: formData.location,
-        price: formData.price,
-        area: parseFloat(formData.area),
-        bedrooms: parseInt(formData.bedrooms),
-        bathrooms: parseInt(formData.bathrooms),
-        garage: formData.garage ? parseInt(formData.garage) : null,
-        rental_type: formData.operation === 'alquiler' ? formData.rental_type : null,
-        slug,
-        status: 'activa',
-      });
+      // Crear propiedad primero para obtener el ID
+      const { data: property, error: propertyError } = await supabase
+        .from('properties')
+        .insert({
+          user_id: user.id,
+          title: formData.title,
+          description: formData.description,
+          operation: formData.operation,
+          type: formData.type,
+          location: formData.location,
+          price: formData.price,
+          area: parseFloat(formData.area),
+          bedrooms: parseInt(formData.bedrooms),
+          bathrooms: parseInt(formData.bathrooms),
+          garage: formData.garage ? parseInt(formData.garage) : null,
+          rental_type: formData.operation === 'alquiler' ? formData.rental_type : null,
+          slug,
+          status: 'activa',
+          images: [],
+        })
+        .select()
+        .single();
 
-      if (error) throw error;
+      if (propertyError) throw propertyError;
+
+      // Subir imágenes
+      const imageUrls = await uploadImages(property.id);
+
+      // Actualizar propiedad con las URLs de las imágenes
+      const { error: updateError } = await supabase
+        .from('properties')
+        .update({ images: imageUrls })
+        .eq('id', property.id);
+
+      if (updateError) throw updateError;
 
       toast({
         title: '¡Éxito!',
@@ -153,6 +246,7 @@ const PublishProperty = () => {
                   <SelectContent>
                     <SelectItem value="departamento">Departamento</SelectItem>
                     <SelectItem value="casa">Casa</SelectItem>
+                    <SelectItem value="ph">PH</SelectItem>
                     <SelectItem value="oficina">Oficina</SelectItem>
                     <SelectItem value="terreno">Terreno</SelectItem>
                     <SelectItem value="local">Local Comercial</SelectItem>
@@ -246,6 +340,57 @@ const PublishProperty = () => {
                   placeholder="Ej: 1"
                 />
               </div>
+            </div>
+
+            {/* Sección de imágenes */}
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="images">Imágenes de la propiedad *</Label>
+                <p className="text-sm text-muted-foreground">
+                  Agrega hasta 10 imágenes (máximo 5MB cada una)
+                </p>
+                <div className="flex items-center gap-4">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => document.getElementById('images')?.click()}
+                    className="w-full"
+                  >
+                    <ImagePlus className="w-4 h-4 mr-2" />
+                    Seleccionar imágenes
+                  </Button>
+                  <Input
+                    id="images"
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handleImageChange}
+                    className="hidden"
+                  />
+                </div>
+              </div>
+
+              {/* Preview de imágenes */}
+              {imagePreviews.length > 0 && (
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {imagePreviews.map((preview, index) => (
+                    <div key={index} className="relative group">
+                      <img
+                        src={preview}
+                        alt={`Preview ${index + 1}`}
+                        className="w-full h-32 object-cover rounded-lg"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeImage(index)}
+                        className="absolute top-2 right-2 bg-destructive text-destructive-foreground rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div className="flex gap-4">
