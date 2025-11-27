@@ -16,6 +16,7 @@ const services = [
     description: 'Diseño arquitectónico completo para tu proyecto',
     image: disenoProyectosImg,
     featured: true,
+    slug: 'arquitectos',
   },
   {
     id: 2,
@@ -24,6 +25,7 @@ const services = [
     description: 'Construcción llave en mano de proyectos residenciales',
     image: construccionObrasImg,
     featured: false,
+    slug: 'constructores',
   },
   {
     id: 3,
@@ -32,6 +34,7 @@ const services = [
     description: 'Renovación y actualización de espacios',
     image: remodelacionesImg,
     featured: false,
+    slug: 'refacciones',
   },
   {
     id: 4,
@@ -40,6 +43,7 @@ const services = [
     description: 'Instalaciones eléctricas, sanitarias y gas',
     image: instalacionesImg,
     featured: false,
+    slug: 'electricistas',
   },
 ];
 
@@ -81,7 +85,10 @@ const FeaturedServices = () => {
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
             >
-              <Card className="relative h-full overflow-hidden group cursor-pointer hover:shadow-lg transition-all duration-300 bg-background">
+              <Card 
+                onClick={() => navigate(`/servicios/${service.slug}`)}
+                className="relative h-full overflow-hidden group cursor-pointer hover:shadow-lg transition-all duration-300 bg-background"
+              >
                 <div className="relative h-48 overflow-hidden">
                   <img 
                     src={service.image} 
