@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
 import { motion } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
+import { InvestmentCalculator } from '@/components/InvestmentCalculator';
 
 const InvestmentDetail = () => {
   const { slug } = useParams();
@@ -177,6 +178,21 @@ const InvestmentDetail = () => {
                     </div>
                   </CardContent>
                 </Card>
+
+                {/* Investment Calculator */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 0.4 }}
+                  className="mb-6"
+                >
+                  <InvestmentCalculator
+                    minInvestment={project.min_investment}
+                    annualReturn={project.annual_return}
+                    capitalGain={project.capital_gain}
+                    deliveryDate={project.delivery_date}
+                  />
+                </motion.div>
 
                 {/* Description */}
                 <Card className="mb-6">
