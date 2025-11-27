@@ -31,6 +31,11 @@ const Dashboard = () => {
   const [userInvestments, setUserInvestments] = useState<any[]>([]);
   const [userServices, setUserServices] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState({
+    totalViews: 0,
+    activePublications: 0,
+    contactsReceived: 0
+  });
 
   useEffect(() => {
     const fetchUserPublications = async () => {
@@ -69,6 +74,19 @@ const Dashboard = () => {
         setUserProperties(properties || []);
         setUserInvestments(investments || []);
         setUserServices(services || []);
+
+        // Fetch statistics
+        // Count contacts received for user's properties
+        const { count: contactsCount } = await supabase
+          .from('property_inquiries')
+          .select('*', { count: 'exact', head: true })
+          .in('property_id', (properties || []).map(p => p.id));
+
+        setStats({
+          totalViews: Math.floor(Math.random() * 500) + 100, // Placeholder por ahora
+          activePublications: (properties?.length || 0) + (investments?.length || 0) + (services?.length || 0),
+          contactsReceived: contactsCount || 0
+        });
       } catch (error) {
         console.error('Error fetching user publications:', error);
         toast({
@@ -302,17 +320,17 @@ const Dashboard = () => {
                   <div className="grid md:grid-cols-3 gap-6">
                     <div className="bg-muted p-6 rounded-lg">
                       <TrendingUp className="w-8 h-8 text-primary mb-2" />
-                      <p className="text-3xl font-bold">245</p>
+                      <p className="text-3xl font-bold">{stats.totalViews}</p>
                       <p className="text-sm text-muted-foreground">Vistas este mes</p>
                     </div>
                     <div className="bg-muted p-6 rounded-lg">
                       <Home className="w-8 h-8 text-primary mb-2" />
-                      <p className="text-3xl font-bold">{userProperties.length}</p>
-                      <p className="text-sm text-muted-foreground">Propiedades activas</p>
+                      <p className="text-3xl font-bold">{stats.activePublications}</p>
+                      <p className="text-sm text-muted-foreground">Publicaciones activas</p>
                     </div>
                     <div className="bg-muted p-6 rounded-lg">
                       <Heart className="w-8 h-8 text-primary mb-2" />
-                      <p className="text-3xl font-bold">12</p>
+                      <p className="text-3xl font-bold">{stats.contactsReceived}</p>
                       <p className="text-sm text-muted-foreground">Contactos recibidos</p>
                     </div>
                   </div>
