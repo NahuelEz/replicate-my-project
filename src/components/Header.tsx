@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Menu, X, User, LogOut, ChevronDown, Building, Home, Star, Wrench } from 'lucide-react';
+import { Menu, X, User, LogOut, ChevronDown, Building, Home, Star, Wrench, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
@@ -159,6 +159,9 @@ const Header = () => {
         <div className="hidden md:flex items-center space-x-2">
           {user ? (
             <>
+              <button onClick={() => handleMenuClick('/mensajes')} className="p-2 text-muted-foreground hover:text-primary transition-colors" title="Mensajes">
+                <MessageSquare className="w-6 h-6" />
+              </button>
               <button onClick={() => handleMenuClick('/panel')} className="p-2 text-muted-foreground hover:text-primary transition-colors" title="Mi Panel">
                 <User className="w-6 h-6" />
               </button>
@@ -197,6 +200,7 @@ const Header = () => {
             <div className="border-t pt-4 space-y-4">
               {user ? (
                 <>
+                  <button onClick={() => handleMenuClick('/mensajes')} className="w-full text-left flex items-center text-foreground hover:text-primary"><MessageSquare className="w-5 h-5 mr-2" /> Mensajes</button>
                   <button onClick={() => handleMenuClick('/panel')} className="w-full text-left flex items-center text-foreground hover:text-primary"><User className="w-5 h-5 mr-2" /> Mi Panel</button>
                   <button onClick={handleLogout} className="w-full text-left flex items-center text-foreground hover:text-primary"><LogOut className="w-5 h-5 mr-2" /> Cerrar Sesión</button>
                 </>
