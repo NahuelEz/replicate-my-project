@@ -192,15 +192,29 @@ const Dashboard = () => {
                         <div key={property.id} className="relative">
                           <PropertyCard property={property} />
                           <div className="flex gap-2 mt-3">
-                            <Button variant="outline" size="sm" className="flex-1">
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="flex-1"
+                              onClick={() => {
+                                toast({
+                                  title: "Funcionalidad en desarrollo",
+                                  description: "La edición de propiedades estará disponible pronto."
+                                });
+                              }}
+                            >
                               <Edit className="w-4 h-4 mr-2" />
                               Editar
                             </Button>
                             <Button 
                               variant="outline" 
                               size="sm" 
-                              className="flex-1"
-                              onClick={() => handleDeleteProperty(property.id)}
+                              className="flex-1 hover:bg-destructive hover:text-destructive-foreground"
+                              onClick={() => {
+                                if (confirm('¿Estás seguro de eliminar esta propiedad?')) {
+                                  handleDeleteProperty(property.id);
+                                }
+                              }}
                             >
                               <Trash2 className="w-4 h-4 mr-2" />
                               Eliminar
