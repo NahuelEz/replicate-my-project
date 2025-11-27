@@ -1,5 +1,6 @@
 import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 export interface Property {
   id: number;
@@ -322,22 +323,115 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setProperties(initialProperties);
-    setInvestmentProjects(initialInvestmentProjects);
-    setProfessionals(initialProfessionals);
+    const fetchData = async () => {
+      try {
+        // Fetch properties
+        const { data: propertiesData, error: propertiesError } = await supabase
+          .from('properties')
+          .select('*')
+          .eq('status', 'activa')
+          .order('created_at', { ascending: false });
 
-    try {
-      const storedFavorites = localStorage.getItem('favorites');
-      if (storedFavorites) {
-        setFavorites(JSON.parse(storedFavorites));
+        if (propertiesError) throw propertiesError;
+
+        // Transform Supabase data to match Property interface
+        const transformedProperties: Property[] = (propertiesData || []).map(p => ({
+          id: parseInt(p.id.split('-')[0], 16), // Convert UUID to number for compatibility
+          title: p.title,
+          slug: p.slug,
+          price: p.price,
+          location: p.location,
+          bedrooms: p.bedrooms,
+          bathrooms: p.bathrooms,
+          area: Number(p.area),
+          status: p.status || 'activa',
+          image: p.images?.[0] || '',
+          images: p.images || [],
+          operation: p.operation,
+          type: p.type,
+          rentalType: p.rental_type || undefined,
+          description: p.description || undefined,
+          surface: p.surface ? Number(p.surface) : undefined,
+          coveredSurface: p.covered_surface ? Number(p.covered_surface) : undefined,
+          rooms: p.rooms || undefined,
+          baths: p.baths || undefined,
+          garage: p.garage || undefined,
+          featured: p.featured || false,
+        }));
+
+        setProperties(transformedProperties);
+
+        // Fetch investment projects
+        const { data: projectsData, error: projectsError } = await supabase
+          .from('investment_projects')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (projectsError) throw projectsError;
+
+        // Transform Supabase data to match InvestmentProject interface
+        const transformedProjects: InvestmentProject[] = (projectsData || []).map(p => ({
+          id: parseInt(p.id.split('-')[0], 16),
+          name: p.name,
+          slug: p.slug,
+          status: p.status,
+          deliveryDate: p.delivery_date,
+          location: p.location,
+          unitTypes: p.unit_types,
+          minInvestment: Number(p.min_investment),
+          annualReturn: Number(p.annual_return),
+          capitalGain: Number(p.capital_gain),
+          modality: p.modality,
+          description: p.description,
+          images: p.images || [],
+          coordinates: p.coordinates as unknown as Coordinates | undefined,
+          publisher: p.publisher as unknown as Publisher | undefined,
+        }));
+
+        setInvestmentProjects(transformedProjects);
+
+        // Fetch professionals
+        const { data: professionalsData, error: professionalsError } = await supabase
+          .from('professionals')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (professionalsError) throw professionalsError;
+
+        // Transform Supabase data to match Professional interface
+        const transformedProfessionals: Professional[] = (professionalsData || []).map(p => ({
+          id: p.id,
+          name: p.name,
+          avatar: p.avatar || '',
+          specialty: p.specialty,
+          categorySlug: p.category_slug,
+          location: p.location,
+          reputation: p.reputation as { rating: number; level: string },
+          profileReviews: (p.profile_reviews as unknown as Review[]) || [],
+          services: (p.services as unknown as Service[]) || [],
+        }));
+
+        setProfessionals(transformedProfessionals);
+
+        // Load favorites from localStorage
+        const storedFavorites = localStorage.getItem('favorites');
+        if (storedFavorites) {
+          setFavorites(JSON.parse(storedFavorites));
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        toast({
+          title: 'Error',
+          description: 'No se pudieron cargar los datos. Intenta recargar la página.',
+          variant: 'destructive',
+        });
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error("Failed to parse favorites from localStorage", error);
-      localStorage.removeItem('favorites');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+    };
+
+    fetchData();
+  }, [toast]);
 
   useEffect(() => {
     localStorage.setItem('favorites', JSON.stringify(favorites));
