@@ -98,13 +98,33 @@ const PropertyDetail = () => {
 
       if (!property) return;
 
-      // Check if conversation already exists
       try {
+        // Get property owner from database
+        const { data: propertyData, error: propertyError } = await supabase
+          .from('properties')
+          .select('user_id')
+          .eq('id', id)
+          .single();
+
+        if (propertyError) throw propertyError;
+        if (!propertyData?.user_id) throw new Error('No se encontró el propietario');
+
+        // Don't allow messaging yourself
+        if (propertyData.user_id === user.id) {
+          toast({
+            title: 'Error',
+            description: 'No puedes enviar mensajes a tu propia propiedad',
+            variant: 'destructive',
+          });
+          return;
+        }
+
+        // Check if conversation already exists
         const { data: existingConv } = await supabase
           .from('conversations')
           .select('id')
-          .eq('property_id', property.id.toString())
-          .eq('owner_id', 'OWNER_USER_ID') // TODO: Get actual owner from property
+          .eq('property_id', id)
+          .eq('owner_id', propertyData.user_id)
           .eq('participant_id', user.id)
           .maybeSingle();
 
@@ -117,9 +137,9 @@ const PropertyDetail = () => {
         const { data: newConv, error } = await supabase
           .from('conversations')
           .insert({
-            property_id: property.id.toString(),
+            property_id: id,
             property_title: property.title,
-            owner_id: 'OWNER_USER_ID', // TODO: Get actual owner from property
+            owner_id: propertyData.user_id,
             participant_id: user.id,
           })
           .select()
