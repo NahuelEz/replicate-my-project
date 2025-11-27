@@ -99,11 +99,11 @@ const PropertyDetail = () => {
       if (!property) return;
 
       try {
-        // Get property owner from database
+        // Get property owner from database using slug
         const { data: propertyData, error: propertyError } = await supabase
           .from('properties')
-          .select('user_id')
-          .eq('id', id)
+          .select('id, user_id')
+          .eq('slug', property.slug)
           .single();
 
         if (propertyError) throw propertyError;
@@ -123,7 +123,7 @@ const PropertyDetail = () => {
         const { data: existingConv } = await supabase
           .from('conversations')
           .select('id')
-          .eq('property_id', id)
+          .eq('property_id', propertyData.id)
           .eq('owner_id', propertyData.user_id)
           .eq('participant_id', user.id)
           .maybeSingle();
@@ -137,7 +137,7 @@ const PropertyDetail = () => {
         const { data: newConv, error } = await supabase
           .from('conversations')
           .insert({
-            property_id: id,
+            property_id: propertyData.id,
             property_title: property.title,
             owner_id: propertyData.user_id,
             participant_id: user.id,
