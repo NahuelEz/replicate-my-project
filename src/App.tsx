@@ -35,6 +35,8 @@ const ProfessionalProfile = lazy(() => import("./pages/services/ProfessionalProf
 const ServiceDetail = lazy(() => import("./pages/services/ServiceDetail"));
 const PropertyDetail = lazy(() => import("./pages/PropertyDetail"));
 const Auth = lazy(() => import("./pages/Auth"));
+const Messages = lazy(() => import("./pages/Messages"));
+const ChatView = lazy(() => import("./pages/ChatView"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -76,6 +78,9 @@ const App = () => (
                     <Route path="/login" element={<Auth />} />
                     <Route path="/registro" element={<Auth />} />
                     <Route path="/panel" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+                    <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+                    <Route path="/mensajes" element={<ProtectedRoute><Messages /></ProtectedRoute>} />
+                    <Route path="/mensajes/:id" element={<ProtectedRoute><ChatView /></ProtectedRoute>} />
                     <Route path="/publicar" element={<ProtectedRoute><PublishSelector /></ProtectedRoute>} />
                     <Route path="/publicar/propiedad" element={<ProtectedRoute><PublishProperty /></ProtectedRoute>} />
                     <Route path="/publicar/inversion" element={<ProtectedRoute><PublishInvestment /></ProtectedRoute>} />
