@@ -131,7 +131,7 @@ const ProfessionalProfile = () => {
                 className="bg-white p-6 rounded-xl shadow-lg"
               >
                 <h2 className="text-2xl font-bold font-heading mb-4 flex items-center"><MessageSquare className="mr-3 text-brand-dorado" />Opiniones sobre el Profesional</h2>
-                {professional.profileReviews.length > 0 ? (
+                {professional.profileReviews && professional.profileReviews.length > 0 ? (
                   <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
                     {professional.profileReviews.map(review => (
                       <ReviewCard key={review.id} review={review} />
