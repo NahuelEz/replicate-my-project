@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 
 const RentProperties = () => {
   const { properties } = useData();
-  const rentProperties = properties.filter(p => p.operation === 'Alquiler');
+  const rentProperties = properties.filter(p => p.operation?.toLowerCase() === 'alquiler');
 
   return (
     <div className="min-h-screen bg-background py-8">
