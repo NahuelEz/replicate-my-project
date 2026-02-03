@@ -1,17 +1,16 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserRole } from '@/hooks/useUserRole';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Shield } from 'lucide-react';
 import PageLoader from '@/components/PageLoader';
 import AdminProperties from '@/components/admin/AdminProperties';
 import AdminUsers from '@/components/admin/AdminUsers';
 import AdminStats from '@/components/admin/AdminStats';
+import AdminInvestments from '@/components/admin/AdminInvestments';
+import AdminProfessionals from '@/components/admin/AdminProfessionals';
 
 const Admin = () => {
-  const navigate = useNavigate();
   const { user } = useAuth();
   const { isAdmin, loading } = useUserRole();
   const [activeTab, setActiveTab] = useState('stats');
@@ -40,14 +39,16 @@ const Admin = () => {
           Panel de Administración
         </h1>
         <p className="text-muted-foreground mt-2">
-          Gestiona usuarios, propiedades y contenido de la plataforma
+          Gestiona usuarios, propiedades, inversiones y profesionales de la plataforma
         </p>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3 lg:w-auto">
+        <TabsList className="grid w-full grid-cols-5 lg:w-auto">
           <TabsTrigger value="stats">Estadísticas</TabsTrigger>
           <TabsTrigger value="properties">Propiedades</TabsTrigger>
+          <TabsTrigger value="investments">Inversiones</TabsTrigger>
+          <TabsTrigger value="professionals">Profesionales</TabsTrigger>
           <TabsTrigger value="users">Usuarios</TabsTrigger>
         </TabsList>
 
@@ -57,6 +58,14 @@ const Admin = () => {
 
         <TabsContent value="properties">
           <AdminProperties />
+        </TabsContent>
+
+        <TabsContent value="investments">
+          <AdminInvestments />
+        </TabsContent>
+
+        <TabsContent value="professionals">
+          <AdminProfessionals />
         </TabsContent>
 
         <TabsContent value="users">
