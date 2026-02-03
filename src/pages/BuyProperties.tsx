@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { useData } from '@/contexts/DataContext';
 import PropertyCard from '@/components/PropertyCard';
 import PropertyFilters, { PropertyFiltersState } from '@/components/PropertyFilters';
+import AdPlaceholder from '@/components/AdPlaceholder';
 import { motion } from 'framer-motion';
 
 const BuyProperties = () => {
@@ -77,12 +78,13 @@ const BuyProperties = () => {
 
           <div className="flex flex-col lg:flex-row gap-8">
             {/* Sidebar Filters */}
-            <div className="w-full lg:w-80 flex-shrink-0">
+            <div className="w-full lg:w-80 flex-shrink-0 space-y-6">
               <PropertyFilters 
                 onFiltersChange={handleFiltersChange} 
                 defaultOperation="venta"
                 showOperationFilter={false}
               />
+              <AdPlaceholder className="min-h-[250px]" />
             </div>
 
             {/* Properties Grid */}
