@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Menu, X, User, LogOut, ChevronDown, Building, Home, Star, Wrench, MessageSquare } from 'lucide-react';
+import { Menu, X, User, LogOut, ChevronDown, Building, Home, Star, Wrench, MessageSquare, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
+import { useUserRole } from '@/hooks/useUserRole';
 import * as NavigationMenu from '@radix-ui/react-navigation-menu';
 import { cn } from "@/lib/utils";
 
@@ -43,6 +44,7 @@ const Header = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
+  const { isAdmin } = useUserRole();
 
   const handleMenuClick = (path?: string) => {
     if (path) {
@@ -159,6 +161,11 @@ const Header = () => {
         <div className="hidden md:flex items-center space-x-2">
           {user ? (
             <>
+              {isAdmin && (
+                <button onClick={() => handleMenuClick('/admin')} className="p-2 text-muted-foreground hover:text-primary transition-colors" title="Panel Admin">
+                  <Shield className="w-6 h-6" />
+                </button>
+              )}
               <button onClick={() => handleMenuClick('/mensajes')} className="p-2 text-muted-foreground hover:text-primary transition-colors" title="Mensajes">
                 <MessageSquare className="w-6 h-6" />
               </button>
@@ -200,6 +207,9 @@ const Header = () => {
             <div className="border-t pt-4 space-y-4">
               {user ? (
                 <>
+                  {isAdmin && (
+                    <button onClick={() => handleMenuClick('/admin')} className="w-full text-left flex items-center text-foreground hover:text-primary"><Shield className="w-5 h-5 mr-2" /> Panel Admin</button>
+                  )}
                   <button onClick={() => handleMenuClick('/mensajes')} className="w-full text-left flex items-center text-foreground hover:text-primary"><MessageSquare className="w-5 h-5 mr-2" /> Mensajes</button>
                   <button onClick={() => handleMenuClick('/panel')} className="w-full text-left flex items-center text-foreground hover:text-primary"><User className="w-5 h-5 mr-2" /> Mi Panel</button>
                   <button onClick={handleLogout} className="w-full text-left flex items-center text-foreground hover:text-primary"><LogOut className="w-5 h-5 mr-2" /> Cerrar Sesión</button>
