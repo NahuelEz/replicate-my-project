@@ -23,8 +23,11 @@ export type Database = {
           image_url: string | null
           impressions: number
           is_active: boolean
+          latitude: number | null
           link_url: string | null
           location: string
+          longitude: number | null
+          radius_km: number | null
           start_date: string | null
           title: string
           updated_at: string
@@ -37,8 +40,11 @@ export type Database = {
           image_url?: string | null
           impressions?: number
           is_active?: boolean
+          latitude?: number | null
           link_url?: string | null
           location?: string
+          longitude?: number | null
+          radius_km?: number | null
           start_date?: string | null
           title: string
           updated_at?: string
@@ -51,8 +57,11 @@ export type Database = {
           image_url?: string | null
           impressions?: number
           is_active?: boolean
+          latitude?: number | null
           link_url?: string | null
           location?: string
+          longitude?: number | null
+          radius_km?: number | null
           start_date?: string | null
           title?: string
           updated_at?: string

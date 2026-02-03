@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,7 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { toast } from '@/hooks/use-toast';
-import { Megaphone, Plus, Pencil, Trash2, ExternalLink, Eye, MousePointer } from 'lucide-react';
+import { Megaphone, Plus, Pencil, Trash2, ExternalLink, Eye, MousePointer, MapPin, Upload, X } from 'lucide-react';
 
 interface Advertisement {
   id: string;
@@ -24,6 +24,9 @@ interface Advertisement {
   clicks: number;
   impressions: number;
   created_at: string;
+  latitude: number | null;
+  longitude: number | null;
+  radius_km: number | null;
 }
 
 const locationLabels: Record<string, string> = {
@@ -38,6 +41,9 @@ const AdminAds = () => {
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingAd, setEditingAd] = useState<Advertisement | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
     title: '',
     image_url: '',
@@ -45,7 +51,10 @@ const AdminAds = () => {
     location: 'sidebar',
     is_active: true,
     start_date: '',
-    end_date: ''
+    end_date: '',
+    latitude: '',
+    longitude: '',
+    radius_km: '50'
   });
 
   useEffect(() => {
@@ -60,7 +69,7 @@ const AdminAds = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setAds(data || []);
+      setAds((data as Advertisement[]) || []);
     } catch (error) {
       console.error('Error fetching ads:', error);
       toast({
@@ -71,6 +80,86 @@ const AdminAds = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Preview
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagePreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+
+    setUploading(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+      const filePath = `ads/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('ad-images')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('ad-images')
+        .getPublicUrl(filePath);
+
+      setFormData(prev => ({ ...prev, image_url: publicUrl }));
+      toast({ title: "Imagen subida correctamente" });
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      toast({
+        title: "Error",
+        description: "No se pudo subir la imagen",
+        variant: "destructive"
+      });
+      setImagePreview(null);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const removeImage = () => {
+    setImagePreview(null);
+    setFormData(prev => ({ ...prev, image_url: '' }));
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const getCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      toast({
+        title: "Error",
+        description: "Tu navegador no soporta geolocalización",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setFormData(prev => ({
+          ...prev,
+          latitude: position.coords.latitude.toFixed(8),
+          longitude: position.coords.longitude.toFixed(8)
+        }));
+        toast({ title: "Ubicación obtenida correctamente" });
+      },
+      (error) => {
+        console.error('Geolocation error:', error);
+        toast({
+          title: "Error",
+          description: "No se pudo obtener la ubicación",
+          variant: "destructive"
+        });
+      }
+    );
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -84,7 +173,10 @@ const AdminAds = () => {
         location: formData.location,
         is_active: formData.is_active,
         start_date: formData.start_date || null,
-        end_date: formData.end_date || null
+        end_date: formData.end_date || null,
+        latitude: formData.latitude ? parseFloat(formData.latitude) : null,
+        longitude: formData.longitude ? parseFloat(formData.longitude) : null,
+        radius_km: formData.radius_km ? parseInt(formData.radius_km) : 50
       };
 
       if (editingAd) {
@@ -126,8 +218,12 @@ const AdminAds = () => {
       location: ad.location,
       is_active: ad.is_active,
       start_date: ad.start_date || '',
-      end_date: ad.end_date || ''
+      end_date: ad.end_date || '',
+      latitude: ad.latitude?.toString() || '',
+      longitude: ad.longitude?.toString() || '',
+      radius_km: ad.radius_km?.toString() || '50'
     });
+    setImagePreview(ad.image_url || null);
     setDialogOpen(true);
   };
 
@@ -175,6 +271,7 @@ const AdminAds = () => {
 
   const resetForm = () => {
     setEditingAd(null);
+    setImagePreview(null);
     setFormData({
       title: '',
       image_url: '',
@@ -182,8 +279,14 @@ const AdminAds = () => {
       location: 'sidebar',
       is_active: true,
       start_date: '',
-      end_date: ''
+      end_date: '',
+      latitude: '',
+      longitude: '',
+      radius_km: '50'
     });
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
   const handleOpenDialog = () => {
@@ -209,7 +312,7 @@ const AdminAds = () => {
               Nuevo Anuncio
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-md">
+          <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>
                 {editingAd ? 'Editar Anuncio' : 'Nuevo Anuncio'}
@@ -225,16 +328,50 @@ const AdminAds = () => {
                   required
                 />
               </div>
+
+              {/* Image Upload */}
               <div>
-                <Label htmlFor="image_url">URL de Imagen</Label>
-                <Input
-                  id="image_url"
-                  type="url"
-                  value={formData.image_url}
-                  onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                  placeholder="https://..."
-                />
+                <Label>Imagen del Anuncio</Label>
+                <div className="mt-2">
+                  {imagePreview ? (
+                    <div className="relative inline-block">
+                      <img
+                        src={imagePreview}
+                        alt="Preview"
+                        className="w-full max-w-xs h-32 object-cover rounded-lg"
+                      />
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="icon"
+                        className="absolute -top-2 -right-2 w-6 h-6"
+                        onClick={removeImage}
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <div
+                      className="border-2 border-dashed border-border rounded-lg p-6 text-center cursor-pointer hover:border-primary transition-colors"
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      <Upload className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
+                      <p className="text-sm text-muted-foreground">
+                        {uploading ? 'Subiendo...' : 'Click para subir imagen'}
+                      </p>
+                    </div>
+                  )}
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleImageUpload}
+                    disabled={uploading}
+                  />
+                </div>
               </div>
+
               <div>
                 <Label htmlFor="link_url">URL de Destino</Label>
                 <Input
@@ -245,8 +382,9 @@ const AdminAds = () => {
                   placeholder="https://..."
                 />
               </div>
+
               <div>
-                <Label htmlFor="location">Ubicación</Label>
+                <Label htmlFor="location">Ubicación en el Sitio</Label>
                 <Select
                   value={formData.location}
                   onValueChange={(value) => setFormData({ ...formData, location: value })}
@@ -262,6 +400,62 @@ const AdminAds = () => {
                   </SelectContent>
                 </Select>
               </div>
+
+              {/* Geolocation */}
+              <div className="space-y-3 p-4 bg-muted/50 rounded-lg">
+                <div className="flex items-center justify-between">
+                  <Label className="flex items-center gap-2">
+                    <MapPin className="w-4 h-4" />
+                    Segmentación Geográfica
+                  </Label>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={getCurrentLocation}
+                  >
+                    Usar mi ubicación
+                  </Button>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label htmlFor="latitude" className="text-xs">Latitud</Label>
+                    <Input
+                      id="latitude"
+                      type="number"
+                      step="any"
+                      value={formData.latitude}
+                      onChange={(e) => setFormData({ ...formData, latitude: e.target.value })}
+                      placeholder="-34.6037"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="longitude" className="text-xs">Longitud</Label>
+                    <Input
+                      id="longitude"
+                      type="number"
+                      step="any"
+                      value={formData.longitude}
+                      onChange={(e) => setFormData({ ...formData, longitude: e.target.value })}
+                      placeholder="-58.3816"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <Label htmlFor="radius_km" className="text-xs">Radio de alcance (km)</Label>
+                  <Input
+                    id="radius_km"
+                    type="number"
+                    value={formData.radius_km}
+                    onChange={(e) => setFormData({ ...formData, radius_km: e.target.value })}
+                    placeholder="50"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Dejá vacío para mostrar a todos los usuarios
+                  </p>
+                </div>
+              </div>
+
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="start_date">Fecha Inicio</Label>
@@ -282,6 +476,7 @@ const AdminAds = () => {
                   />
                 </div>
               </div>
+
               <div className="flex items-center gap-2">
                 <Switch
                   id="is_active"
@@ -290,7 +485,8 @@ const AdminAds = () => {
                 />
                 <Label htmlFor="is_active">Activo</Label>
               </div>
-              <Button type="submit" className="w-full">
+
+              <Button type="submit" className="w-full" disabled={uploading}>
                 {editingAd ? 'Guardar Cambios' : 'Crear Anuncio'}
               </Button>
             </form>
@@ -309,9 +505,9 @@ const AdminAds = () => {
                 <TableRow>
                   <TableHead>Título</TableHead>
                   <TableHead>Ubicación</TableHead>
+                  <TableHead>Geo</TableHead>
                   <TableHead>Estado</TableHead>
                   <TableHead>Estadísticas</TableHead>
-                  <TableHead>Fechas</TableHead>
                   <TableHead className="text-right">Acciones</TableHead>
                 </TableRow>
               </TableHeader>
@@ -349,6 +545,16 @@ const AdminAds = () => {
                       </Badge>
                     </TableCell>
                     <TableCell>
+                      {ad.latitude && ad.longitude ? (
+                        <Badge variant="secondary" className="flex items-center gap-1 w-fit">
+                          <MapPin className="w-3 h-3" />
+                          {ad.radius_km}km
+                        </Badge>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">Global</span>
+                      )}
+                    </TableCell>
+                    <TableCell>
                       <Switch
                         checked={ad.is_active}
                         onCheckedChange={() => toggleActive(ad.id, ad.is_active)}
@@ -364,13 +570,6 @@ const AdminAds = () => {
                           <MousePointer className="w-3 h-3" />
                           {ad.clicks}
                         </span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="text-sm text-muted-foreground">
-                        {ad.start_date && <p>Desde: {ad.start_date}</p>}
-                        {ad.end_date && <p>Hasta: {ad.end_date}</p>}
-                        {!ad.start_date && !ad.end_date && <p>Sin límite</p>}
                       </div>
                     </TableCell>
                     <TableCell className="text-right">
