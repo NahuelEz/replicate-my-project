@@ -156,18 +156,4 @@ All colors MUST be HSL.
   }
 }
 
-/* Leaflet map styles */
-.leaflet-container {
-  z-index: 0 !important;
-}
-
-.leaflet-pane {
-  z-index: 0 !important;
-}
-
-.leaflet-top,
-.leaflet-bottom {
-  z-index: 10 !important;
-}
-
 @import url('https://fonts.googleapis.com/css2?family=Cooper+Hewitt:wght@700&family=DM+Sans:wght@700&display=swap');

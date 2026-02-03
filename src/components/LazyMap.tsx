@@ -1,16 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import { MapPin, Loader2 } from 'lucide-react';
-import 'leaflet/dist/leaflet.css';
-import L from 'leaflet';
-
-// Fix for default marker icon in Leaflet with React
-delete (L.Icon.Default.prototype as any)._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
-  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-});
 
 interface Coordinates {
   lat: number;
@@ -82,7 +71,7 @@ const LazyMap = ({ coordinates: initialCoordinates, location }: LazyMapProps) =>
 
   if (loading) {
     return (
-      <div className="h-[400px] flex items-center justify-center bg-muted">
+      <div className="h-[400px] flex items-center justify-center bg-muted rounded-lg">
         <div className="text-center">
           <Loader2 className="w-12 h-12 text-primary mx-auto mb-2 animate-spin" />
           <p className="text-muted-foreground font-medium">Buscando ubicación...</p>
@@ -93,7 +82,7 @@ const LazyMap = ({ coordinates: initialCoordinates, location }: LazyMapProps) =>
 
   if (error || !coordinates) {
     return (
-      <div className="h-[400px] flex items-center justify-center bg-muted text-center p-8">
+      <div className="h-[400px] flex items-center justify-center bg-muted text-center p-8 rounded-lg">
         <div>
           <MapPin className="w-12 h-12 text-muted-foreground mx-auto mb-2" />
           <p className="text-muted-foreground">No se pudo encontrar la ubicación en el mapa.</p>
@@ -103,25 +92,27 @@ const LazyMap = ({ coordinates: initialCoordinates, location }: LazyMapProps) =>
     );
   }
 
+  // Use OpenStreetMap embed iframe for reliable map display
+  const mapUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${coordinates.lng - 0.01},${coordinates.lat - 0.01},${coordinates.lng + 0.01},${coordinates.lat + 0.01}&layer=mapnik&marker=${coordinates.lat},${coordinates.lng}`;
+
   return (
-    <MapContainer
-      center={[coordinates.lat, coordinates.lng]}
-      zoom={15}
-      scrollWheelZoom={false}
-      className="h-[400px] w-full rounded-lg z-0"
-    >
-      <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+    <div className="relative h-[400px] w-full rounded-lg overflow-hidden">
+      <iframe
+        title={`Mapa de ${location}`}
+        src={mapUrl}
+        className="w-full h-full border-0"
+        loading="lazy"
+        referrerPolicy="no-referrer-when-downgrade"
       />
-      <Marker position={[coordinates.lat, coordinates.lng]}>
-        <Popup>
-          <div className="text-center">
-            <p className="font-medium">{location}</p>
-          </div>
-        </Popup>
-      </Marker>
-    </MapContainer>
+      <a 
+        href={`https://www.openstreetmap.org/?mlat=${coordinates.lat}&mlon=${coordinates.lng}#map=16/${coordinates.lat}/${coordinates.lng}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="absolute bottom-2 right-2 bg-white/90 text-xs px-2 py-1 rounded shadow hover:bg-white transition-colors"
+      >
+        Ver mapa más grande
+      </a>
+    </div>
   );
 };
 
