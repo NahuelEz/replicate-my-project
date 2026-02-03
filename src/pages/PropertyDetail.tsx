@@ -14,6 +14,7 @@ import PropertyDescription from '@/components/PropertyDescription';
 import PropertyAmenities from '@/components/PropertyAmenities';
 import PropertyMap from '@/components/PropertyMap';
 import QuickActions from '@/components/QuickActions';
+import AdPlaceholder from '@/components/AdPlaceholder';
 
 const PropertyDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -277,6 +278,8 @@ const PropertyDetail = () => {
               </div>
 
               <QuickActions onContact={handleContact} />
+              
+              <AdPlaceholder className="min-h-[250px]" />
             </div>
           </div>
         </div>
