@@ -14,6 +14,51 @@ export type Database = {
   }
   public: {
     Tables: {
+      advertisements: {
+        Row: {
+          clicks: number
+          created_at: string
+          end_date: string | null
+          id: string
+          image_url: string | null
+          impressions: number
+          is_active: boolean
+          link_url: string | null
+          location: string
+          start_date: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          clicks?: number
+          created_at?: string
+          end_date?: string | null
+          id?: string
+          image_url?: string | null
+          impressions?: number
+          is_active?: boolean
+          link_url?: string | null
+          location?: string
+          start_date?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          clicks?: number
+          created_at?: string
+          end_date?: string | null
+          id?: string
+          image_url?: string | null
+          impressions?: number
+          is_active?: boolean
+          link_url?: string | null
+          location?: string
+          start_date?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       conversations: {
         Row: {
           created_at: string
