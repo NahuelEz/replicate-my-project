@@ -9,6 +9,7 @@ import AdminUsers from '@/components/admin/AdminUsers';
 import AdminStats from '@/components/admin/AdminStats';
 import AdminInvestments from '@/components/admin/AdminInvestments';
 import AdminProfessionals from '@/components/admin/AdminProfessionals';
+import AdminAds from '@/components/admin/AdminAds';
 
 const Admin = () => {
   const { user } = useAuth();
@@ -44,11 +45,12 @@ const Admin = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5 lg:w-auto">
+        <TabsList className="grid w-full grid-cols-6 lg:w-auto">
           <TabsTrigger value="stats">Estadísticas</TabsTrigger>
           <TabsTrigger value="properties">Propiedades</TabsTrigger>
           <TabsTrigger value="investments">Inversiones</TabsTrigger>
           <TabsTrigger value="professionals">Profesionales</TabsTrigger>
+          <TabsTrigger value="ads">Anuncios</TabsTrigger>
           <TabsTrigger value="users">Usuarios</TabsTrigger>
         </TabsList>
 
@@ -66,6 +68,10 @@ const Admin = () => {
 
         <TabsContent value="professionals">
           <AdminProfessionals />
+        </TabsContent>
+
+        <TabsContent value="ads">
+          <AdminAds />
         </TabsContent>
 
         <TabsContent value="users">
