@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Heart, MapPin, Bed, Bath, ArrowRightLeft } from 'lucide-react';
+import { Heart, MapPin, Bed, Bath, ArrowRightLeft, Maximize } from 'lucide-react';
 import { useData } from '@/contexts/DataContext';
+import ImageLightbox from './ImageLightbox';
 
 interface PropertyCardProps {
   property: {
@@ -21,6 +22,7 @@ interface PropertyCardProps {
 }
 
 const PropertyCard = ({ property }: PropertyCardProps) => {
+  const [lightboxOpen, setLightboxOpen] = useState(false);
   const { favorites, toggleFavorite } = useData();
   const isFavorite = favorites.some((fav: any) => fav.id === property.id);
 
@@ -59,16 +61,29 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
           }`}>
             {operationLabel}
           </div>
-          <button
-            onClick={handleFavoriteClick}
-            className={`absolute top-2 right-2 p-2 rounded-full transition-all duration-200 ${
-              isFavorite 
-                ? 'bg-red-500 text-white' 
-                : 'bg-white/80 text-foreground hover:bg-white hover:text-red-500'
-            }`}
-          >
-            <Heart className={`w-4 h-4 ${isFavorite ? 'fill-current' : ''}`} />
-          </button>
+          <div className="absolute top-2 right-2 flex gap-1">
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setLightboxOpen(true);
+              }}
+              className="p-2 rounded-full bg-white/80 text-foreground hover:bg-white transition-all duration-200"
+              aria-label="Ver imagen ampliada"
+            >
+              <Maximize className="w-4 h-4" />
+            </button>
+            <button
+              onClick={handleFavoriteClick}
+              className={`p-2 rounded-full transition-all duration-200 ${
+                isFavorite 
+                  ? 'bg-red-500 text-white' 
+                  : 'bg-white/80 text-foreground hover:bg-white hover:text-red-500'
+              }`}
+            >
+              <Heart className={`w-4 h-4 ${isFavorite ? 'fill-current' : ''}`} />
+            </button>
+          </div>
         </div>
 
         <div className="p-3 flex flex-col flex-grow">
@@ -101,6 +116,13 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
           </div>
         </div>
       </Link>
+
+      <ImageLightbox
+        images={property.images || [property.image || "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800"]}
+        initialIndex={0}
+        isOpen={lightboxOpen}
+        onClose={() => setLightboxOpen(false)}
+      />
     </motion.div>
   );
 };
